@@ -13,13 +13,17 @@ vi.mock('../../utils/logger', () => ({
 }));
 
 // Mock de security para tests
-vi.mock('../../utils/security', () => ({
-  secureCommandExecution: vi.fn((input, level, address) => ({
-    valid: true,
-    command: input,
-    remaining: 10
-  }))
-}));
+vi.mock('../../utils/security', async (importOriginal) => {
+  const actual = await importOriginal()
+  return {
+    ...actual,
+    secureCommandExecution: vi.fn((input, level, address) => ({
+      valid: true,
+      command: input,
+      remaining: 10
+    }))
+  }
+});
 
 // Mock de performance
 vi.mock('../../utils/performance', () => ({
@@ -42,9 +46,13 @@ describe('Command System', () => {
     mockWalletState.balance = 0
     userProgress.commandCount = 0
     userProgress.level = 0
-    userProgress.unlockedCommands.clear()
-    userProgress.unlockedCommands.add('help')
-    userProgress.unlockedCommands.add('connect')
+    userProgress.unlockedCommands = new Set([
+      'help',
+      'connect',
+      'clear',
+      'disconnect',
+      'balance'
+    ])
   })
 
   describe('Basic Commands', () => {
@@ -78,13 +86,13 @@ describe('Command System', () => {
     it('should handle connect command without wallet specified', async () => {
       const result = await executeCommand('connect')
       expect(result.type).toBe('error')
-      expect(result.content).toContain('Usage: connect')
+      expect(result.content).toMatch(/USAGE: connect/i)
     })
 
     it('should handle connect with invalid wallet', async () => {
       const result = await executeCommand('connect invalidwallet')
       expect(result.type).toBe('error')
-      expect(result.content).toContain('Wallet not found')
+      expect(result.content).toMatch(/WALLET NOT FOUND/i)
     })
 
     it('should handle disconnect when not connected', async () => {
@@ -112,7 +120,7 @@ describe('Command System', () => {
     it('should handle stake without amount', async () => {
       const result = await executeCommand('stake')
       expect(result.type).toBe('error')
-      expect(result.content).toContain('Usage: stake')
+      expect(result.content).toMatch(/USAGE: stake/i)
     })
 
     it('should handle stake with invalid amount', async () => {
