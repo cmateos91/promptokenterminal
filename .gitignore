@@ -10,6 +10,9 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# GitHub Actions completamente deshabilitado
+.github/workflows/
+
 # Vercel (solo para deployment manual)
 .vercel
 

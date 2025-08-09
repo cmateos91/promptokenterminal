@@ -1,3 +1,0 @@
-# Eliminando workflow de GitHub - ahora usando vercel --prod manual
-# Este archivo fue removido para evitar deployments automáticos desde GitHub
-# Para deploy manual: vercel --prod
