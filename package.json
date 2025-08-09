@@ -2,27 +2,11 @@
   "name": "promptoken-staking-dapp",
   "private": true,
   "version": "1.0.0",
-  "description": "Terminal retro para staking de tokens $PROMPT con recompensas en cualquier token SPL",
-  "keywords": ["solana", "staking", "defi", "terminal", "crypto", "spl-tokens", "promptoken"],
-  "author": "Carlos Mateos",
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/cmateos91/PROMPToken.git"
-  },
-  "bugs": {
-    "url": "https://github.com/cmateos91/PROMPToken/issues"
-  },
-  "homepage": "https://github.com/cmateos91/PROMPToken#readme",
-  "workspaces": ["frontend"],
+  "description": "Terminal retro para staking de tokens $PROMPT",
   "scripts": {
     "dev": "cd frontend && npm run dev",
-    "build": "cd frontend && npm install && npm run build",
+    "build": "cd frontend && npm run build",
     "preview": "cd frontend && npm run preview",
-    "install": "cd frontend && npm install"
-  },
-  "engines": {
-    "node": ">=16.0.0",
-    "npm": ">=8.0.0"
+    "setup": "cd frontend && npm install"
   }
 }
