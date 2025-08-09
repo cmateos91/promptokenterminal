@@ -3,30 +3,132 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Terminal retro para staking de tokens $PROMPT con recompensas en cualquier token SPL en Solana" />
-    <meta name="keywords" content="solana, staking, defi, terminal, crypto, spl-tokens, prompt" />
+    
+    <!-- Viewport optimizado para móvil -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    
+    <!-- Evitar zoom automático en inputs (iOS) -->
+    <meta name="format-detection" content="telephone=no" />
+    
+    <!-- PWA Support -->
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="PROMPT Terminal" />
+    
+    <!-- Preconnect para fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    
+    <!-- Meta tags mejorados -->
+    <meta name="description" content="Terminal retro para staking de tokens $PROMPT con recompensas en cualquier token SPL en Solana. Interfaz optimizada para móvil." />
+    <meta name="keywords" content="solana, staking, defi, terminal, crypto, spl-tokens, prompt, mobile, responsive" />
     <meta name="author" content="Carlos" />
+    <meta name="robots" content="index, follow" />
     
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="$PROMPT Staking Terminal" />
-    <meta property="og:description" content="Terminal retro para staking de tokens $PROMPT con recompensas en cualquier token SPL" />
+    <meta property="og:title" content="$PROMPT Staking Terminal - Mobile Optimized" />
+    <meta property="og:description" content="Terminal retro para staking de tokens $PROMPT con recompensas en cualquier token SPL. Interfaz optimizada para móvil." />
     <meta property="og:image" content="/og-image.png" />
+    <meta property="og:url" content="https://prompt-staking.vercel.app" />
+    <meta property="og:site_name" content="PROMPT Staking Terminal" />
     
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image" />
     <meta property="twitter:title" content="$PROMPT Staking Terminal" />
-    <meta property="twitter:description" content="Terminal retro para staking de tokens $PROMPT" />
+    <meta property="twitter:description" content="Terminal retro para staking de tokens $PROMPT optimizado para móvil" />
     <meta property="twitter:image" content="/og-image.png" />
+    <meta property="twitter:creator" content="@tu_usuario" />
     
-    <!-- Theme -->
-    <meta name="theme-color" content="#00ff00" />
+    <!-- Theme optimizado para móvil -->
+    <meta name="theme-color" content="#00ff41" />
+    <meta name="msapplication-TileColor" content="#00ff41" />
+    <meta name="msapplication-navbutton-color" content="#00ff41" />
+    
+    <!-- Manifest para PWA -->
+    <link rel="manifest" href="/manifest.json" />
+    
+    <!-- Iconos para diferentes dispositivos -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    
+    <!-- Preload critical CSS -->
+    <link rel="preload" href="/src/styles/terminal.css" as="style" />
+    
+    <!-- DNS prefetch para RPC endpoints -->
+    <link rel="dns-prefetch" href="//api.devnet.solana.com" />
+    <link rel="dns-prefetch" href="//api.mainnet-beta.solana.com" />
     
     <title>$PROMPT Staking Terminal</title>
+    
+    <!-- Critical CSS inline para mobile (opcional) -->
+    <style>
+      /* Critical styles for mobile first paint */
+      body { 
+        margin: 0; 
+        padding: 0; 
+        background: #0a0a0a; 
+        color: #00ff41; 
+        font-family: monospace; 
+        overflow: hidden;
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        -webkit-font-smoothing: antialiased;
+        -webkit-tap-highlight-color: transparent;
+      }
+      #root { 
+        width: 100%; 
+        height: 100%; 
+      }
+      .loading-screen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: #0a0a0a;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #00ff41;
+        font-family: monospace;
+        z-index: 9999;
+      }
+    </style>
   </head>
   <body>
+    <!-- Loading screen inicial para mejor UX -->
+    <div id="loading-screen" class="loading-screen">
+      <div>Initializing PROMPT Terminal...</div>
+    </div>
+    
     <div id="root"></div>
+    
+    <!-- Script para remover loading screen -->
+    <script>
+      // Remover loading screen cuando la app esté cargada
+      window.addEventListener('load', () => {
+        const loading = document.getElementById('loading-screen');
+        if (loading) {
+          loading.style.opacity = '0';
+          setTimeout(() => loading.remove(), 300);
+        }
+      });
+      
+      // Prevenir zoom en doble tap (iOS)
+      let lastTouchEnd = 0;
+      document.addEventListener('touchend', function (event) {
+        const now = (new Date()).getTime();
+        if (now - lastTouchEnd <= 300) {
+          event.preventDefault();
+        }
+        lastTouchEnd = now;
+      }, false);
+    </script>
+    
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

@@ -12,11 +12,13 @@ export default function Terminal() {
     suggestions,
     showSuggestions,
     isLoading,
+    isMobile,
     inputRef,
     outputRef,
     setInput,
     handleSubmit,
-    handleKeyDown
+    handleKeyDown,
+    handleSuggestionClick
   } = useTerminal();
 
   // Update user status when commands are executed
@@ -28,6 +30,26 @@ export default function Terminal() {
     window.addEventListener('terminal-command', handleCommand);
     return () => window.removeEventListener('terminal-command', handleCommand);
   }, []);
+
+  // Prevenir comportamientos por defecto en móvil
+  useEffect(() => {
+    if (!isMobile) return;
+
+    const preventDefault = (e) => {
+      // Prevenir pull-to-refresh en ciertos elementos
+      if (e.target.closest('.terminal-output') || e.target.closest('.terminal-input-area')) {
+        if (e.touches.length === 1 && e.touches[0].clientY > 0) {
+          e.preventDefault();
+        }
+      }
+    };
+
+    document.addEventListener('touchmove', preventDefault, { passive: false });
+    
+    return () => {
+      document.removeEventListener('touchmove', preventDefault);
+    };
+  }, [isMobile]);
 
   const renderHistoryItem = (item, index) => {
     switch (item.type) {
@@ -85,13 +107,28 @@ export default function Terminal() {
     }
   };
 
+  // Handler para focus en input (móvil)
+  const handleInputFocus = () => {
+    if (isMobile && inputRef.current) {
+      // Scroll al input cuando se enfoque en móvil
+      setTimeout(() => {
+        inputRef.current?.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'center' 
+        });
+      }, 300); // Delay para esperar a que aparezca el teclado
+    }
+  };
+
   return (
     <div className="terminal-container">
       <div className="terminal-header">
         <div className="terminal-logo">
           <span className="logo-text">PROMPT</span>
         </div>
-        <div className="terminal-subtitle">SOLANA STAKING PROTOCOL</div>
+        {!isMobile && (
+          <div className="terminal-subtitle">SOLANA STAKING PROTOCOL</div>
+        )}
         <div className="terminal-user-info">
           <div className="user-level" style={{color: userStatus.color}}>
             [{userStatus.level}] {userStatus.name}
@@ -105,20 +142,31 @@ export default function Terminal() {
       
       <SystemStats />
 
-      <div className="terminal-output" ref={outputRef}>
+      <div 
+        className="terminal-output" 
+        ref={outputRef}
+        role="log"
+        aria-live="polite"
+        aria-label="Terminal output"
+      >
         {history.map(renderHistoryItem)}
       </div>
 
       <div className="terminal-input-area">
         {showSuggestions && suggestions.length > 0 && (
-          <div className="suggestions">
+          <div className="suggestions" role="listbox" aria-label="Command suggestions">
             {suggestions.map((suggestion, index) => (
               <span 
                 key={index} 
                 className="suggestion-item"
-                onClick={() => {
-                  setInput(suggestion + ' ');
+                onClick={() => handleSuggestionClick(suggestion)}
+                onTouchEnd={(e) => {
+                  e.preventDefault();
+                  handleSuggestionClick(suggestion);
                 }}
+                role="option"
+                tabIndex={isMobile ? 0 : -1}
+                aria-label={`Suggestion: ${suggestion}`}
               >
                 {suggestion}
               </span>
@@ -134,18 +182,28 @@ export default function Terminal() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
+            onFocus={handleInputFocus}
             className="terminal-input"
             placeholder={isLoading ? "Processing..." : "Enter command..."}
             autoComplete="off"
+            autoCorrect="off"
+            autoCapitalize="off"
             spellCheck="false"
             disabled={isLoading}
+            aria-label="Command input"
+            // Atributos específicos para móvil
+            inputMode="text"
+            enterKeyHint="send"
           />
-          <span className="cursor">_</span>
+          {!isMobile && <span className="cursor">_</span>}
         </form>
         
         <div className="terminal-footer">
           <span className="footer-text">
-            TAB: autocomplete | UP/DOWN: history | ESC: clear | CTRL+C: interrupt
+            {isMobile 
+              ? "TAB: autocomplete | Type 'help' for commands"
+              : "TAB: autocomplete | UP/DOWN: history | ESC: clear | CTRL+C: interrupt"
+            }
           </span>
         </div>
       </div>

@@ -5,6 +5,9 @@ import { getTokenMetadata } from '../tokenMetadata';
 
 export const walletCommands = {
   connect: async (args) => {
+    // Detectar si es móvil
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
+    
     if (mockWalletState.connected) {
       return {
         type: 'info',
@@ -14,9 +17,13 @@ export const walletCommands = {
 
     const wallet = args[0];
     if (!wallet) {
+      const mobileInstructions = isMobile 
+        ? '\n\n📱 MOBILE TIP:\nOpen this terminal in your mobile wallet browser for direct connection'
+        : '';
+      
       return { 
         type: 'error', 
-        content: '📄 USAGE: connect <phantom|solflare>\n\nAvailable wallets:\n• phantom - Phantom wallet\n• solflare - Solflare wallet' 
+        content: `📄 USAGE: connect <phantom|solflare>\n\nAvailable wallets:\n• phantom - Phantom wallet\n• solflare - Solflare wallet${mobileInstructions}` 
       };
     }
 

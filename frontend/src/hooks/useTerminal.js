@@ -19,15 +19,30 @@ export function useTerminal() {
   const inputRef = useRef(null);
   const outputRef = useRef(null);
   const idleTimeoutRef = useRef(null);
+  const isMobileRef = useRef(false);
 
-  // Auto-focus input (existente)
+  // Detectar si es móvil
   useEffect(() => {
-    inputRef.current?.focus();
+    const checkMobile = () => {
+      isMobileRef.current = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) 
+        || window.innerWidth <= 768;
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // NUEVO: Mantener focus después de cambios en el historial
+  // Auto-focus optimizado para móvil
   useEffect(() => {
-    if (!isLoading) {
+    if (!isMobileRef.current) {
+      inputRef.current?.focus();
+    }
+  }, []);
+
+  // Focus management mejorado para móvil
+  useEffect(() => {
+    if (!isLoading && !isMobileRef.current) {
       const timer = setTimeout(() => {
         inputRef.current?.focus();
       }, 100);
@@ -36,51 +51,57 @@ export function useTerminal() {
     }
   }, [history, isLoading]);
 
-  // NUEVO: Focus cuando termina el loading
-  useEffect(() => {
-    if (!isLoading) {
-      setTimeout(() => {
-        inputRef.current?.focus();
-      }, 50);
-    }
-  }, [isLoading]);
-
-  // Auto-scroll modificado
+  // Auto-scroll mejorado para móvil
   useEffect(() => {
     if (outputRef.current) {
-      outputRef.current.scrollTop = outputRef.current.scrollHeight;
+      const scrollToBottom = () => {
+        const element = outputRef.current;
+        if (element) {
+          // Usar requestAnimationFrame para mejor performance en móvil
+          requestAnimationFrame(() => {
+            element.scrollTop = element.scrollHeight;
+          });
+        }
+      };
+
+      scrollToBottom();
       
-      // Restaurar focus después del scroll
-      setTimeout(() => {
-        inputRef.current?.focus();
-      }, 10);
+      // Restaurar focus solo en desktop
+      if (!isMobileRef.current) {
+        setTimeout(() => {
+          inputRef.current?.focus();
+        }, 10);
+      }
     }
   }, [history]);
 
-  // Update suggestions based on input
+  // Update suggestions optimizado
   useEffect(() => {
     if (input.trim()) {
-      const suggestions = getCommandSuggestions(input.trim());
-      setSuggestions(suggestions);
-      setShowSuggestions(suggestions.length > 0);
+      const newSuggestions = getCommandSuggestions(input.trim());
+      setSuggestions(newSuggestions);
+      setShowSuggestions(newSuggestions.length > 0);
     } else {
       setShowSuggestions(false);
     }
   }, [input]);
 
-  // Idle tip system
+  // Idle tip system con timeout más largo para móvil
   useEffect(() => {
     const resetIdleTimer = () => {
       if (idleTimeoutRef.current) {
         clearTimeout(idleTimeoutRef.current);
       }
       
+      // Timeout más largo en móvil para no molestar
+      const timeout = isMobileRef.current ? 60000 : 30000;
+      
       idleTimeoutRef.current = setTimeout(() => {
         setHistory(prev => [...prev, {
           type: 'info',
           content: getRandomTip()
         }]);
-      }, 30000); // Show tip after 30 seconds of inactivity
+      }, timeout);
     };
 
     resetIdleTimer();
@@ -91,10 +112,12 @@ export function useTerminal() {
     };
   }, [input, history]);
 
-  // Mantener focus con event listener global
+  // Click handler optimizado para móvil
   useEffect(() => {
     const handleDocumentClick = (e) => {
-      // Si el click no fue en un elemento específico, mantener focus en input
+      // En móvil, no forzar focus automático
+      if (isMobileRef.current) return;
+      
       const isClickOnSuggestion = e.target.closest('.suggestion-item');
       const isClickOnInput = e.target.closest('.terminal-input');
       const isClickOnScrollbar = e.target === outputRef.current;
@@ -113,19 +136,48 @@ export function useTerminal() {
     };
   }, [isLoading]);
 
+  // Touch handlers para móvil
+  useEffect(() => {
+    if (!isMobileRef.current) return;
+
+    const handleTouchStart = (e) => {
+      // Prevenir comportamientos por defecto en ciertos elementos
+      if (e.target.closest('.suggestion-item') || e.target.closest('.terminal-input')) {
+        return;
+      }
+    };
+
+    const handleTouchEnd = (e) => {
+      // Manejar tap en suggestions
+      if (e.target.closest('.suggestion-item')) {
+        e.preventDefault();
+      }
+    };
+
+    document.addEventListener('touchstart', handleTouchStart, { passive: false });
+    document.addEventListener('touchend', handleTouchEnd, { passive: false });
+
+    return () => {
+      document.removeEventListener('touchstart', handleTouchStart);
+      document.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, []);
+
   const executeCommandWithLoading = useCallback(async (command) => {
     setIsLoading(true);
 
-    // Simulate network delay for realism
-    await new Promise(resolve => setTimeout(resolve, Math.random() * 500 + 200));
+    // Delay más corto en móvil para mejor responsividad
+    const delay = isMobileRef.current ? 150 : 300;
+    await new Promise(resolve => setTimeout(resolve, Math.random() * delay + 100));
+    
     try {
-      return executeCommand(command);
+      return await executeCommand(command);
     } finally {
       setIsLoading(false);
     }
   }, []);
 
-  // Función handleSubmit MEJORADA según tu documento
+  // HandleSubmit optimizado para móvil
   const handleSubmit = useCallback(async (e) => {
     e.preventDefault();
     if (!input.trim() || isLoading) {
@@ -146,14 +198,17 @@ export function useTerminal() {
       setHistory(prev => [...prev, newEntry]);
     }
     
-    // Limpiar input inmediatamente para mejor UX
+    // Limpiar input y suggestions
     setInput('');
     setShowSuggestions(false);
     
-    // FOCUS INMEDIATO después de limpiar input
-    setTimeout(() => {
-      inputRef.current?.focus();
-    }, 0);
+    // En móvil, ocultar teclado virtual si es necesario
+    if (isMobileRef.current && inputRef.current) {
+      inputRef.current.blur();
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 100);
+    }
     
     const result = await executeCommandWithLoading(command);
     
@@ -167,7 +222,6 @@ export function useTerminal() {
       ]);
     } else {
       setHistory(prev => {
-        // Remove loading message and add result
         const newHistory = [...prev];
         if (newHistory[newHistory.length - 1]?.type === 'loading') {
           newHistory.pop();
@@ -176,14 +230,26 @@ export function useTerminal() {
       });
     }
     
-    // FOCUS FINAL después de todas las actualizaciones
-    setTimeout(() => {
-      inputRef.current?.focus();
-    }, 50);
-    
   }, [input, isLoading, executeCommandWithLoading]);
 
+  // HandleKeyDown mejorado para móvil
   const handleKeyDown = useCallback((e) => {
+    // En móvil, simplificar navegación por teclado
+    if (isMobileRef.current) {
+      if (e.key === 'Enter') {
+        handleSubmit(e);
+        return;
+      }
+      if (e.key === 'Escape') {
+        setShowSuggestions(false);
+        setInput('');
+        setHistoryIndex(-1);
+        return;
+      }
+      return;
+    }
+
+    // Navegación completa para desktop
     if (e.key === 'ArrowUp') {
       e.preventDefault();
       if (historyIndex < commandHistory.length - 1) {
@@ -229,7 +295,20 @@ export function useTerminal() {
         { type: 'info', content: 'Type "help" to see available commands' }
       ]);
     }
-  }, [historyIndex, commandHistory, suggestions, input]);
+  }, [historyIndex, commandHistory, suggestions, input, handleSubmit]);
+
+  // Suggestion click handler optimizado para móvil
+  const handleSuggestionClick = useCallback((suggestion) => {
+    setInput(suggestion + ' ');
+    setShowSuggestions(false);
+    
+    // En móvil, enfocar input después de seleccionar sugerencia
+    if (isMobileRef.current) {
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 100);
+    }
+  }, []);
 
   const addMessage = useCallback((message) => {
     setHistory(prev => [...prev, message]);
@@ -249,6 +328,7 @@ export function useTerminal() {
     suggestions,
     showSuggestions,
     isLoading,
+    isMobile: isMobileRef.current,
     
     // Refs
     inputRef,
@@ -258,6 +338,7 @@ export function useTerminal() {
     setInput,
     handleSubmit,
     handleKeyDown,
+    handleSuggestionClick,
     
     // Utils
     addMessage,
