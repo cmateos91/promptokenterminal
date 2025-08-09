@@ -1,15 +1,20 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { logger, performanceLogger, walletLogger, rpcLogger, Logger } from '../../utils/logger'
+import { logger, performanceLogger, walletLogger, rpcLogger, Logger, LogLevel } from '../../utils/logger'
 
 describe('Logging System', () => {
   beforeEach(() => {
     // Clear console mocks
     vi.clearAllMocks()
-    
+
     // Mock console methods
     vi.spyOn(console, 'log').mockImplementation(() => {})
     vi.spyOn(console, 'error').mockImplementation(() => {})
     vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+    // Reset logger state
+    logger.level = LogLevel.DEBUG
+    logger.enableStorage = true
+    logger.clearLogs()
   })
 
   describe('Logger', () => {
@@ -209,15 +214,16 @@ describe('Logging System', () => {
 
     it('should capture unhandled promise rejections', () => {
       vi.spyOn(logger, 'error')
-      
+
       // Simulate an unhandled promise rejection
-      const rejectionEvent = new PromiseRejectionEvent('unhandledrejection', {
-        promise: Promise.reject(new Error('Test rejection')),
+      const rejectionEvent = new Event('unhandledrejection')
+      Object.assign(rejectionEvent, {
+        promise: Promise.resolve(),
         reason: new Error('Test rejection')
       })
-      
+
       window.dispatchEvent(rejectionEvent)
-      
+
       expect(logger.error).toHaveBeenCalledWith(
         'Unhandled promise rejection',
         expect.objectContaining({

@@ -1,4 +1,5 @@
 import { mockWalletState } from '../userState';
+import { validateTransactionAmount } from '../security';
 
 export const stakingCommands = {
   status: () => {
