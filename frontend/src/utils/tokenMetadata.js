@@ -34,30 +34,12 @@ export async function getTokenMetadata(mintAddress) {
       tokenData.decimals = mintInfo.value.data.parsed.info.decimals;
     }
 
-    // Buscar metadatos usando el Token Metadata Program
-    try {
-      const metadataPDA = await getMetadataPDA(mintAddress);
-      const metadataAccount = await retryWithFallback(async (conn) => {
-        return await conn.getAccountInfo(metadataPDA);
-      });
-
-      if (metadataAccount && metadataAccount.data) {
-        const metadata = parseTokenMetadata(metadataAccount.data);
-        if (metadata) {
-          tokenData.name = metadata.name || tokenData.name;
-          tokenData.symbol = metadata.symbol || tokenData.symbol;
-        }
-      }
-    } catch (metadataError) {
-      console.warn('Could not fetch token metadata:', metadataError.message);
-    }
-
     // Tokens conocidos hardcodeados para casos comunes
     const knownTokens = {
       '5gusfEv5k4jR32Nnj92ftqj8u4deKk8KxCUZudZcnWxF': {
-        name: 'PROMPT Test Token',
-        symbol: 'PROMPT',
-        decimals: 9
+        name: 'promptest',
+        symbol: 'PTEST',
+        decimals: 3
       },
       'So11111111111111111111111111111111111111112': {
         name: 'Wrapped SOL',
@@ -78,6 +60,24 @@ export async function getTokenMetadata(mintAddress) {
 
     if (knownTokens[mintString]) {
       tokenData = { ...tokenData, ...knownTokens[mintString], address: mintString };
+    } else {
+      // Buscar metadatos usando el Token Metadata Program solo si no es conocido
+      try {
+        const metadataPDA = await getMetadataPDA(mintAddress);
+        const metadataAccount = await retryWithFallback(async (conn) => {
+          return await conn.getAccountInfo(metadataPDA);
+        });
+
+        if (metadataAccount && metadataAccount.data) {
+          const metadata = parseTokenMetadata(metadataAccount.data);
+          if (metadata) {
+            tokenData.name = metadata.name || tokenData.name;
+            tokenData.symbol = metadata.symbol || tokenData.symbol;
+          }
+        }
+      } catch (metadataError) {
+        console.warn('Could not fetch token metadata:', metadataError.message);
+      }
     }
 
     // Guardar en caché
@@ -137,18 +137,22 @@ function parseTokenMetadata(data) {
     offset += 32;
     
     // Name length (4 bytes)
+    if (offset + 4 > dataBuffer.length) return null;
     const nameLength = dataBuffer.readUInt32LE(offset);
     offset += 4;
     
     // Name
+    if (offset + nameLength > dataBuffer.length) return null;
     const name = dataBuffer.subarray(offset, offset + nameLength).toString('utf8').replace(/\0/g, '');
     offset += nameLength;
     
     // Symbol length (4 bytes)
+    if (offset + 4 > dataBuffer.length) return null;
     const symbolLength = dataBuffer.readUInt32LE(offset);
     offset += 4;
     
     // Symbol
+    if (offset + symbolLength > dataBuffer.length) return null;
     const symbol = dataBuffer.subarray(offset, offset + symbolLength).toString('utf8').replace(/\0/g, '');
     
     return { name, symbol };

@@ -46,6 +46,7 @@ export async function executeCommand(input) {
 
     if (!unrestricted.has(resolvedCommand)) {
       const allowed = await hasRequiredBalance();
+      
       if (!allowed) {
         // Obtener metadatos del token para mostrar nombre en lugar de dirección
         try {
