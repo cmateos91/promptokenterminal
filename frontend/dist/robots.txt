@@ -1,0 +1,7 @@
+# Robots.txt para $PROMPT Staking Terminal
+
+User-agent: *
+Allow: /
+
+# Sitemaps
+Sitemap: https://your-domain.vercel.app/sitemap.xml

@@ -3,7 +3,18 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react()
+    // PWA plugin comentado temporalmente para debugging
+    /*
+    VitePWA({
+      registerType: 'autoUpdate',
+      workbox: {
+        globPatterns: ['**\/*.{js,css,html,ico,png,svg}'],
+      }
+    })
+    */
+  ],
   define: {
     global: 'globalThis',
     'process.env': {},
@@ -32,7 +43,8 @@ export default defineConfig({
       output: {
         manualChunks: {
           vendor: ['react', 'react-dom'],
-          solana: ['@solana/web3.js', '@solana/spl-token']
+          solana: ['@solana/web3.js', '@solana/spl-token'],
+          utils: ['./src/utils/logger.js', './src/utils/performance.js']
         }
       }
     }
