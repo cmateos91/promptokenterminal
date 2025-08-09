@@ -8,6 +8,7 @@
     "dev": "vite --host",
     "build": "vite build",
     "preview": "vite preview --host",
+    "setup": "npm install",
     "lint": "echo 'lint not configured'",
     "test": "echo 'no tests'"
   },

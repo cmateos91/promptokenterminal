@@ -14,15 +14,12 @@
     "url": "https://github.com/cmateos91/PROMPToken/issues"
   },
   "homepage": "https://github.com/cmateos91/PROMPToken#readme",
-  "workspaces": ["frontend", "backend", "contracts"],
+  "workspaces": ["frontend"],
   "scripts": {
-    "dev": "npm run dev -w frontend",
-    "build": "npm run build -w frontend",
-    "preview": "npm run preview -w frontend",
-    "lint": "npm run lint -w frontend",
-    "test": "npm run test -w frontend",
-    "clean": "rm -rf node_modules frontend/node_modules backend/node_modules contracts/node_modules",
-    "setup": "npm install && npm install -w frontend && npm install -w backend && npm install -w contracts"
+    "dev": "cd frontend && npm run dev",
+    "build": "cd frontend && npm install && npm run build",
+    "preview": "cd frontend && npm run preview",
+    "install": "cd frontend && npm install"
   },
   "engines": {
     "node": ">=16.0.0",
