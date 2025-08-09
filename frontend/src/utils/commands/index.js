@@ -4,7 +4,8 @@ import { infoCommands } from './info';
 import { funCommands } from './fun';
 import { systemCommands } from './system';
 import { easterEggCommands } from './easterEggs';
-import { userProgress, checkLevelUp, getUserStatus } from '../userState';
+import { diagnosticCommands } from './diagnostics';
+import { userProgress, checkLevelUp, getUserStatus, mockWalletState } from '../userState';
 import { hasRequiredBalance } from '../tokenGate';
 import { MIN_TOKEN_BALANCE, TOKEN_MINT } from '../config';
 import { getTokenMetadata, formatTokenDisplay } from '../tokenMetadata';
@@ -15,7 +16,8 @@ const commands = {
   ...infoCommands,
   ...funCommands,
   ...systemCommands,
-  ...easterEggCommands
+  ...easterEggCommands,
+  ...diagnosticCommands
 };
 
 const aliases = {
@@ -24,67 +26,158 @@ const aliases = {
   'tinfo': 'tokeninfo', 'ti': 'tokeninfo',
   'pr': 'price', 'sol': 'price', 'sl': 'slot',
   'coin': 'flip', 'roll': 'dice',
+  // Diagnostic aliases
+  'diag': 'debug', 'healthcheck': 'health', 'perf': 'performance',
+  // Development aliases
+  'lvl': 'levelup', 'maxlevel': 'levelup', 'unlock': 'levelup',
+  // Hidden commands
   '???': 'easter', '👻': 'ghost', 'debug': 'dev'
 };
 
 commands.help = () => {
   const aliasList = Object.keys(aliases)
-    .filter(a => !['???', '👻', 'debug'].includes(a))
+    .filter(a => !['???', '👻', 'debug', 'lvl', 'maxlevel', 'unlock'].includes(a))
     .join(', ');
   return {
     type: 'result',
-    content: `AVAILABLE COMMANDS\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\nWALLET OPERATIONS\n  connect <wallet> │ Connect wallet (phantom | solflare)\n  disconnect       │ Disconnect current wallet\n  balance          │ Display wallet balances\n  walletinfo       │ Detailed connection information\n  tokeninfo <addr> │ Get token metadata and details\n\nSTAKING OPERATIONS\n  stake <amount>   │ Stake PROMPT tokens\n  unstake <amount> │ Withdraw staked tokens\n  claim            │ Claim pending rewards\n\nINFORMATION\n  status           │ Current staking status\n  rewards          │ Available reward tokens\n  apy              │ Pool statistics and APY\n  pools            │ Available staking pools\n  price            │ Current SOL price\n  slot             │ Latest network slot\n  profile          │ View user progression\n\nFUN\n  flip             │ Flip a coin\n  dice             │ Roll a six-sided die\n\nSYSTEM\n  about            │ Protocol information\n  version          │ System version details\n  banner           │ Display PROMPT logo\n  clear            │ Clear terminal output\n  reset            │ Full system reset\n\nHIDDEN\n  ??????           │ ??????\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nTAB: autocomplete │ UP/DOWN: command history │ ALIASES: ${aliasList}`
+    content: `AVAILABLE COMMANDS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+WALLET OPERATIONS
+  connect <wallet> │ Connect wallet (phantom | solflare)
+  disconnect       │ Disconnect current wallet
+  balance          │ Display wallet balances
+  walletinfo       │ Detailed connection information
+  tokeninfo <addr> │ Get token metadata and details
+
+STAKING OPERATIONS
+  stake <amount>   │ Stake PROMPT tokens
+  unstake <amount> │ Withdraw staked tokens
+  claim            │ Claim pending rewards
+
+INFORMATION
+  status           │ Current staking status
+  rewards          │ Available reward tokens
+  apy              │ Pool statistics and APY
+  pools            │ Available staking pools
+  price            │ Current SOL price
+  slot             │ Latest network slot
+  profile          │ View user progression
+
+DIAGNOSTICS
+  logs <filter>    │ System logs (wallet|rpc|command|errors)
+  debug <component>│ Debug info (system|wallet|user|network)
+  health           │ System health check
+  performance      │ Performance metrics
+  cache <action>   │ Cache management (status|stats|clear)
+  export <type>    │ Export data (logs|debug)
+
+FUN
+  flip             │ Flip a coin
+  dice             │ Roll a six-sided die
+
+SYSTEM
+  about            │ Protocol information
+  version          │ System version details
+  banner           │ Display PROMPT logo
+  clear            │ Clear terminal output
+  reset            │ Full system reset
+
+DEVELOPMENT
+  levelup <0-4>    │ Jump to specific access level (dev only)
+
+HIDDEN
+  ??????           │ ??????
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TAB: autocomplete │ UP/DOWN: command history │ ALIASES: ${aliasList}`
   };
 };
 
 export async function executeCommand(input) {
+  const userStatus = getUserStatus();
+  const userAddress = userProgress.walletAddress || mockWalletState.address || 'anonymous';
+  
+  console.log('🎮 Executing command:', input);
+  
   const [command, ...args] = input.toLowerCase().split(' ');
   const resolvedCommand = aliases[command] || command;
 
-  if (commands[resolvedCommand]) {
-    const unrestricted = new Set(['help', 'connect', 'disconnect', 'clear', 'banner', 'version', 'about']);
+  // Check if command exists
+  if (!commands[resolvedCommand]) {
+    console.warn('Command not found:', command);
+    return { 
+      type: 'error', 
+      content: `❌ Command not found: ${command}\nType "help" for available commands` 
+    };
+  }
 
-    if (!unrestricted.has(resolvedCommand)) {
+  // Check if user has access to this command
+  if (!userProgress.unlockedCommands.has(resolvedCommand)) {
+    console.warn('Command access denied - not unlocked:', resolvedCommand);
+    return {
+      type: 'error',
+      content: `🔒 Command "${resolvedCommand}" not unlocked at your current level\nCurrent: [${userStatus.level}] ${userStatus.name}`
+    };
+  }
+
+  // Token gating for restricted commands
+  const unrestricted = new Set([
+    'help', 'connect', 'disconnect', 'clear', 'banner', 'version', 'about', 
+    'ping', 'time', 'whoami', 'logs', 'debug', 'health', 'performance', 
+    'cache', 'export'
+  ]);
+  
+  if (!unrestricted.has(resolvedCommand)) {
+    try {
       const allowed = await hasRequiredBalance();
       
       if (!allowed) {
-        // Obtener metadatos del token para mostrar nombre en lugar de dirección
-        try {
-          const tokenData = await getTokenMetadata(TOKEN_MINT);
-          const tokenDisplay = formatTokenDisplay(tokenData);
-          return {
-            type: 'error',
-            content: `ACCESS DENIED\nRequires at least ${MIN_TOKEN_BALANCE} ${tokenData.symbol} tokens\n\nToken: ${tokenDisplay}`
-          };
-        } catch (error) {
-          // Fallback al comportamiento original si falla la obtención de metadatos
-          return {
-            type: 'error',
-            content: `ACCESS DENIED\nRequires at least ${MIN_TOKEN_BALANCE} tokens of ${TOKEN_MINT.toBase58()}`
-          };
-        }
+        console.warn('Token gate check failed:', resolvedCommand);
+        
+        const tokenData = await getTokenMetadata(TOKEN_MINT);
+        const tokenDisplay = formatTokenDisplay(tokenData);
+        return {
+          type: 'error',
+          content: `🚫 ACCESS DENIED\nRequires at least ${MIN_TOKEN_BALANCE} ${tokenData.symbol} tokens\n\nToken: ${tokenDisplay}`
+        };
       }
-    }
-
-    userProgress.commandCount++;
-
-    try {
-      const result = await commands[resolvedCommand](args);
-      const leveledUp = checkLevelUp(resolvedCommand);
-
-      if (leveledUp) {
-        const status = getUserStatus();
-        const levelUpMsg = `\n\n━━━ LEVEL UP! ━━━\nAccess Level: [${status.level}] ${status.name}\nNew commands unlocked! Use 'help' to see them.`;
-        result.content += levelUpMsg;
-      }
-
-      return result;
     } catch (error) {
-      return { type: 'error', content: `Command execution failed: ${error.message}` };
+      console.error('Token verification failed:', error.message);
+      return {
+        type: 'error',
+        content: `🚫 ACCESS DENIED\nToken verification failed: ${error.message}`
+      };
     }
   }
 
-  return { type: 'error', content: `Command not found: ${command}\nType "help" for available commands` };
+  userProgress.commandCount++;
+
+  try {
+    console.log('Executing command:', resolvedCommand, 'with args:', args);
+    
+    const result = await commands[resolvedCommand](args);
+    
+    console.log('Command executed successfully:', resolvedCommand);
+    
+    const leveledUp = checkLevelUp(resolvedCommand);
+    if (leveledUp) {
+      const newStatus = getUserStatus();
+      console.log('User leveled up:', newStatus.level);
+      
+      const levelUpMsg = `\n\n━━━ 🎉 LEVEL UP! 🎉 ━━━\nAccess Level: [${newStatus.level}] ${newStatus.name}\nNew commands unlocked! Use 'help' to see them.`;
+      result.content += levelUpMsg;
+    }
+
+    return result;
+  } catch (error) {
+    console.error('Command execution failed:', error);
+    
+    return { 
+      type: 'error', 
+      content: `💥 Command execution failed: ${error.message}\nPlease try again or contact support.` 
+    };
+  }
 }
 
 export function getCommandSuggestions(input) {

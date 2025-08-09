@@ -1,8 +1,6 @@
 import { PublicKey } from '@solana/web3.js';
 import { retryWithFallback } from './solana';
-
-// Cache para evitar múltiples consultas del mismo token
-const tokenMetadataCache = new Map();
+import { tokenMetadataCache, rpcRateLimiter, retryWithBackoff } from './performance';
 
 /**
  * Obtiene los metadatos de un token SPL usando el Metaplex Token Metadata Program
@@ -13,22 +11,32 @@ export async function getTokenMetadata(mintAddress) {
   const mintString = mintAddress.toBase58();
   
   // Verificar caché
-  if (tokenMetadataCache.has(mintString)) {
-    return tokenMetadataCache.get(mintString);
+  const cached = tokenMetadataCache.get(mintString);
+  if (cached) {
+    console.log(`🔄 Using cached metadata for ${mintString.slice(0, 8)}...`);
+    return cached;
+  }
+
+  // Rate limiting
+  if (!rpcRateLimiter.isAllowed(`metadata_${mintString}`)) {
+    console.warn('⚠️ Rate limited for metadata fetch');
+    // Return basic fallback if rate limited
+    const fallback = createFallbackMetadata(mintString);
+    tokenMetadataCache.set(mintString, fallback, 60000); // Cache for 1 minute
+    return fallback;
   }
 
   try {
-    // Intentar obtener información del mint (básica)
-    const mintInfo = await retryWithFallback(async (conn) => {
-      return await conn.getParsedAccountInfo(mintAddress);
-    });
+    console.log(`🔍 Fetching metadata for token ${mintString.slice(0, 8)}...`);
+    
+    // Intentar obtener información del mint (básica) con retry automático
+    const mintInfo = await retryWithBackoff(async () => {
+      return await retryWithFallback(async (conn) => {
+        return await conn.getParsedAccountInfo(mintAddress);
+      });
+    }, 2, 500);
 
-    let tokenData = {
-      name: 'Unknown Token',
-      symbol: 'UNK',
-      decimals: 9,
-      address: mintString
-    };
+    let tokenData = createFallbackMetadata(mintString);
 
     if (mintInfo && mintInfo.value && mintInfo.value.data && mintInfo.value.data.parsed) {
       tokenData.decimals = mintInfo.value.data.parsed.info.decimals;
@@ -80,24 +88,33 @@ export async function getTokenMetadata(mintAddress) {
       }
     }
 
-    // Guardar en caché
-    tokenMetadataCache.set(mintString, tokenData);
+    // Guardar en caché con TTL más largo para metadatos exitosos
+    tokenMetadataCache.set(mintString, tokenData, 600000); // 10 minutes
+    console.log(`✅ Metadata cached for ${tokenData.symbol}`);
     return tokenData;
 
   } catch (error) {
-    console.error('Error fetching token metadata:', error);
+    console.error('❌ Error fetching token metadata:', error);
     
     // Fallback básico
-    const fallbackData = {
-      name: `Token ${mintString.slice(0, 8)}...`,
-      symbol: 'UNK',
-      decimals: 9,
-      address: mintString
-    };
+    const fallbackData = createFallbackMetadata(mintString);
     
-    tokenMetadataCache.set(mintString, fallbackData);
+    // Cache fallback for shorter time
+    tokenMetadataCache.set(mintString, fallbackData, 60000); // 1 minute
     return fallbackData;
   }
+}
+
+/**
+ * Creates fallback metadata for unknown tokens
+ */
+function createFallbackMetadata(mintString) {
+  return {
+    name: `Token ${mintString.slice(0, 8)}...`,
+    symbol: 'UNK',
+    decimals: 9,
+    address: mintString
+  };
 }
 
 /**

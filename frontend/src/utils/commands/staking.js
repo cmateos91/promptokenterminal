@@ -17,49 +17,93 @@ export const stakingCommands = {
 
   stake: (args) => {
     if (!mockWalletState.connected) {
-      return { type: 'error', content: 'Connect wallet first using: connect' };
+      return { type: 'error', content: '🔒 Connect wallet first using: connect' };
     }
 
     if (!args.length) {
-      return { type: 'error', content: 'Usage: stake <amount>\nExample: stake 100' };
+      return { 
+        type: 'error', 
+        content: '📄 USAGE: stake <amount>\n\nExample: stake 100\nMin amount: 0.001 PROMPT\nMax amount: Your available balance' 
+      };
     }
 
-    const amount = parseFloat(args[0]);
-    if (isNaN(amount) || amount <= 0) {
-      return { type: 'error', content: 'Invalid amount. Please enter a positive number.' };
+    // Validación de amount con security utils
+    const amountValidation = validateTransactionAmount(
+      args[0], 
+      mockWalletState.balance || 1000, // Mock balance
+      9 // PROMPT decimals
+    );
+    
+    if (!amountValidation.valid) {
+      return { 
+        type: 'error', 
+        content: `❌ Invalid amount: ${amountValidation.error}\n\nEnter a valid number between 0.001 and ${mockWalletState.balance || 1000}` 
+      };
+    }
+
+    const amount = amountValidation.value;
+    
+    // Verificación adicional de balance suficiente
+    const availableBalance = (mockWalletState.balance || 1000) - mockWalletState.stakedAmount;
+    if (amount > availableBalance) {
+      return {
+        type: 'error',
+        content: `🚫 Insufficient balance\nRequested: ${amount} PROMPT\nAvailable: ${availableBalance.toFixed(4)} PROMPT`
+      };
     }
 
     mockWalletState.stakedAmount += amount;
+    const dailyRewards = (amount * 0.15 / 365).toFixed(6);
+    const totalStaked = mockWalletState.stakedAmount.toFixed(4);
 
     return {
       type: 'result',
-      content: `STAKING TRANSACTION COMPLETED\n\nAmount staked:     ${amount} PROMPT\nTotal staked:      ${mockWalletState.stakedAmount} PROMPT\nDaily rewards:     ${(amount * 0.15 / 365).toFixed(4)} tokens`
+      content: `✅ STAKING TRANSACTION COMPLETED\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\nAmount staked:     ${amount} PROMPT\nTotal staked:      ${totalStaked} PROMPT\nDaily rewards:     ${dailyRewards} tokens\nAPY:               15.2%\n\nTransaction processed successfully.`
     };
   },
 
   unstake: (args) => {
     if (!mockWalletState.connected) {
-      return { type: 'error', content: 'Connect wallet first using: connect' };
+      return { type: 'error', content: '🔒 Connect wallet first using: connect' };
     }
 
     if (!args.length) {
-      return { type: 'error', content: 'Usage: unstake <amount>\nExample: unstake 50' };
+      return { 
+        type: 'error', 
+        content: '📄 USAGE: unstake <amount>\n\nExample: unstake 50\nCurrent staked: ' + mockWalletState.stakedAmount + ' PROMPT' 
+      };
     }
 
-    const amount = parseFloat(args[0]);
-    if (isNaN(amount) || amount <= 0) {
-      return { type: 'error', content: 'Invalid amount. Please enter a positive number.' };
+    // Validación con security utils
+    const amountValidation = InputValidator.isValidNumber(args[0], {
+      min: 0.001,
+      max: mockWalletState.stakedAmount,
+      allowDecimals: true,
+      maxDecimals: 9
+    });
+
+    if (!amountValidation.valid) {
+      return { 
+        type: 'error', 
+        content: `❌ Invalid amount: ${amountValidation.error}\n\nStaked amount: ${mockWalletState.stakedAmount} PROMPT` 
+      };
     }
+
+    const amount = amountValidation.value;
 
     if (amount > mockWalletState.stakedAmount) {
-      return { type: 'error', content: `Insufficient staked amount. You have ${mockWalletState.stakedAmount} $PROMPT staked.` };
+      return { 
+        type: 'error', 
+        content: `🚫 Insufficient staked amount\nRequested: ${amount} PROMPT\nStaked: ${mockWalletState.stakedAmount} PROMPT` 
+      };
     }
 
     mockWalletState.stakedAmount -= amount;
+    const remainingStaked = mockWalletState.stakedAmount.toFixed(4);
 
     return {
       type: 'result',
-      content: `UNSTAKING TRANSACTION COMPLETED\n\nAmount unstaked:   ${amount} PROMPT\nRemaining staked:  ${mockWalletState.stakedAmount} PROMPT`
+      content: `✅ UNSTAKING TRANSACTION COMPLETED\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\nAmount unstaked:   ${amount} PROMPT\nRemaining staked:  ${remainingStaked} PROMPT\n\nTokens will be available in your wallet shortly.`
     };
   },
 

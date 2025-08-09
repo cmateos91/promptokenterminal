@@ -8,13 +8,16 @@ export const walletCommands = {
     if (mockWalletState.connected) {
       return {
         type: 'info',
-        content: `WALLET ALREADY CONNECTED\nAddress: ${mockWalletState.address}`
+        content: `🔗 WALLET ALREADY CONNECTED\nAddress: ${mockWalletState.address}`
       };
     }
 
     const wallet = args[0];
     if (!wallet) {
-      return { type: 'error', content: 'Usage: connect <phantom|solflare>' };
+      return { 
+        type: 'error', 
+        content: '📄 USAGE: connect <phantom|solflare>\n\nAvailable wallets:\n• phantom - Phantom wallet\n• solflare - Solflare wallet' 
+      };
     }
 
     const getProvider = () => {
@@ -31,7 +34,10 @@ export const walletCommands = {
 
     const provider = getProvider();
     if (!provider) {
-      return { type: 'error', content: `Wallet not found: ${wallet}` };
+      return { 
+        type: 'error', 
+        content: `❌ WALLET NOT FOUND\n\nWallet: ${wallet}\nSolution: Install wallet extension or try another wallet\n\nAvailable: phantom, solflare` 
+      };
     }
 
     try {
@@ -51,7 +57,6 @@ export const walletCommands = {
         });
       } catch (e) {
         console.warn('Error fetching SOL balance with all endpoints:', e.message);
-        // Fallback: intentar con conexión directa
         try {
           const balanceLamports = await connection.getBalance(realPublicKey);
           realBalance = balanceLamports / LAMPORTS_PER_SOL;
@@ -74,18 +79,6 @@ export const walletCommands = {
         });
       } catch (e) {
         console.warn('Error fetching token accounts with all endpoints:', e.message);
-        // Fallback: intentar con conexión directa
-        try {
-          const tokenAccounts = await connection.getParsedTokenAccountsByOwner(
-            realPublicKey,
-            { programId: TOKEN_PROGRAM_ID }
-          );
-          tokenCount = tokenAccounts.value.filter(
-            ({ account }) => account.data.parsed.info.tokenAmount.uiAmount > 0
-          ).length;
-        } catch (fallbackError) {
-          console.warn('Direct token query also failed:', fallbackError.message);
-        }
       }
       
       // Actualizar estado con datos reales
@@ -96,7 +89,7 @@ export const walletCommands = {
       mockWalletState.walletType = wallet;
       mockWalletState.tokenCount = tokenCount;
       mockWalletState.connectionTime = new Date().toISOString();
-      mockWalletState.isReal = true; // Marcar como datos reales
+      mockWalletState.isReal = true;
       
       // Obtener información adicional del wallet
       const networkInfo = getNetworkInfo();
@@ -110,7 +103,7 @@ export const walletCommands = {
 
       return {
         type: 'result',
-        content: `${walletInfo.type} WALLET CONNECTED\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\nAddress: ${walletInfo.shortAddress}\nFull:    ${walletInfo.address}\nBalance: ${walletInfo.balance} SOL\nTokens:  ${walletInfo.tokenAccounts} SPL accounts\n\n⚡ Real wallet connected!\nNetwork: ${networkInfo.network.toUpperCase()}\n\nNext: 'balance' for updated data | 'walletinfo' for details`
+        content: `✅ ${walletInfo.type} WALLET CONNECTED\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\nAddress: ${walletInfo.shortAddress}\nFull:    ${walletInfo.address}\nBalance: ${walletInfo.balance} SOL\nTokens:  ${walletInfo.tokenAccounts} SPL accounts\n\n⚡ Real wallet connected!\nNetwork: ${networkInfo.network.toUpperCase()}\n\nNext: 'balance' for updated data | 'walletinfo' for details`
       };
     } catch (err) {
       console.error('Wallet connection error:', err);
@@ -123,12 +116,16 @@ export const walletCommands = {
 
   disconnect: async () => {
     if (!mockWalletState.connected) {
-      return { type: 'error', content: 'No wallet connected' };
+      return { type: 'error', content: '🔌 No wallet connected' };
     }
 
     try {
-      await mockWalletState.provider?.disconnect();
-    } catch (e) {}
+      if (mockWalletState.provider?.disconnect) {
+        await mockWalletState.provider.disconnect();
+      }
+    } catch (e) {
+      console.warn('Error during wallet disconnection:', e.message);
+    }
 
     // Limpiar todos los datos del wallet
     mockWalletState.connected = false;
@@ -143,42 +140,33 @@ export const walletCommands = {
     mockWalletState.connectionTime = null;
     mockWalletState.isReal = false;
 
+    // Reset user progress
     userProgress.level = 0;
 
-    return { type: 'result', content: 'WALLET DISCONNECTED\n\nConnection terminated successfully.' };
+    return { 
+      type: 'result', 
+      content: '✅ WALLET DISCONNECTED\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\nConnection terminated successfully.\nAll wallet data cleared.' 
+    };
   },
 
   balance: async () => {
-    console.log('🔍 Balance command called');
-    console.log('🔍 Wallet state:', {
-      connected: mockWalletState.connected,
-      address: mockWalletState.address,
-      provider: !!mockWalletState.provider
-    });
-    
     if (!mockWalletState.connected) {
-      console.log('❌ Wallet not connected');
-      return { type: 'error', content: 'Connect wallet first using: connect' };
+      return { type: 'error', content: '🔒 Connect wallet first using: connect' };
     }
 
     if (!mockWalletState.provider || !mockWalletState.provider.publicKey) {
-      console.log('❌ Provider or publicKey missing');
       return { type: 'error', content: 'Wallet provider not available. Try reconnecting.' };
     }
 
     try {
-      console.log('🔄 Starting balance fetch...');
-      
       // Actualizar balance en tiempo real con fallback
       const realBalance = await retryWithFallback(async (conn) => {
         const balanceLamports = await conn.getBalance(mockWalletState.provider.publicKey);
         return balanceLamports / LAMPORTS_PER_SOL;
       });
       mockWalletState.balance = realBalance;
-      console.log('✅ SOL balance fetched:', realBalance);
 
       // Obtener tokens SPL con fallback
-      console.log('🔄 Fetching SPL tokens...');
       const tokens = await retryWithFallback(async (conn) => {
         const tokenAccounts = await conn.getParsedTokenAccountsByOwner(
           mockWalletState.provider.publicKey,
@@ -194,7 +182,6 @@ export const walletCommands = {
           })
           .filter(t => t.amount > 0);
       });
-      console.log('✅ SPL tokens fetched:', tokens.length, 'tokens');
 
       // Obtener metadatos de los tokens para mostrar nombres
       let tokenLines = 'No SPL tokens';
@@ -206,7 +193,6 @@ export const walletCommands = {
               const metadata = await getTokenMetadata(new PublicKey(token.mint));
               return `${token.amount.toLocaleString()} ${metadata.symbol} (${metadata.name})`;
             } catch (error) {
-              // Fallback si no se pueden obtener metadatos
               return `${token.mint.slice(0, 8)}...: ${token.amount.toLocaleString()}`;
             }
           });
@@ -214,13 +200,11 @@ export const walletCommands = {
           const tokenDisplays = await Promise.all(tokenMetadataPromises);
           tokenLines = tokenDisplays.join('\n');
           
-          // Si hay más de 5 tokens, agregar indicador
           if (tokens.length > 5) {
             tokenLines += `\n... and ${tokens.length - 5} more tokens`;
           }
         } catch (error) {
           console.warn('Error fetching token metadata for balance:', error);
-          // Fallback al formato anterior
           tokenLines = tokens
             .slice(0, 5)
             .map(t => `${t.mint.slice(0, 8)}...: ${t.amount.toLocaleString()}`)
@@ -233,13 +217,10 @@ export const walletCommands = {
       const networkIndicator = networkInfo.isTestnet ? '📱 DEVNET (testing)' : '⚡ MAINNET';
       const dataSource = mockWalletState.isReal ? `${networkIndicator} - Real data` : '📱 Simulated data';
       
-      const result = {
+      return {
         type: 'result',
         content: `WALLET BALANCES\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\nSOL:     ${mockWalletState.balance.toFixed(4)}\n${tokenLines}\n\n${dataSource}`
       };
-      
-      console.log('✅ Balance command result:', result);
-      return result;
       
     } catch (err) {
       console.error('❌ Balance fetch error:', err);
@@ -250,7 +231,6 @@ export const walletCommands = {
     }
   },
 
-  // Comando para obtener información detallada de un token específico
   tokeninfo: async (args) => {
     if (!args[0]) {
       return { 
@@ -275,7 +255,6 @@ export const walletCommands = {
     }
   },
 
-  // Nuevo comando: mostrar información detallada de la conexión
   walletinfo: async () => {
     if (!mockWalletState.connected) {
       return { type: 'error', content: 'No wallet connected. Use: connect <wallet>' };
