@@ -8,15 +8,15 @@ describe('Basic System Tests', () => {
 
   it('should have valid JavaScript syntax', async () => {
     // Import main modules to ensure they compile
-    const { executeCommand } = await import('../../utils/commands')
-    const { getUserStatus } = await import('../../utils/userState')
+    const { executeCommand } = await import('../utils/commands')
+    const { getUserStatus } = await import('../utils/userState')
     
     expect(typeof executeCommand).toBe('function')
     expect(typeof getUserStatus).toBe('function')
   })
 
   it('should handle basic command structure', async () => {
-    const { getCommandSuggestions } = await import('../../utils/commands')
+    const { getCommandSuggestions } = await import('../utils/commands')
     
     // Test that suggestions work
     const suggestions = getCommandSuggestions('he')
