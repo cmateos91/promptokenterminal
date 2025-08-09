@@ -3,14 +3,14 @@
 **Terminal retro optimizado para móvil - Staking de tokens $PROMPT con recompensas en cualquier token SPL**
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/tu-usuario/solana-staking-dapp)
-[![Live Demo](https://img.shields.io/badge/Live-Demo-00ff41?style=for-the-badge&logo=vercel)](https://solana-staking-dapp-9azhsfe6b-carlos-projects-c7e924a9.vercel.app)
+[![Live Demo](https://img.shields.io/badge/Live-Demo-00ff41?style=for-the-badge&logo=vercel)](https://your-deployment-url.vercel.app)
 [![Mobile Optimized](https://img.shields.io/badge/Mobile-Optimized-00ff41?style=for-the-badge&logo=mobile)](https://solana-staking-dapp-9azhsfe6b-carlos-projects-c7e924a9.vercel.app)
 
 ## 🎮 **Live Demo**
 
 ### **🌐 Acceso Directo**
 ```
-https://solana-staking-dapp-9azhsfe6b-carlos-projects-c7e924a9.vercel.app
+https://your-deployment-url.vercel.app
 ```
 
 ### **📱 Características Principales**
@@ -246,12 +246,35 @@ vercel --prod
 - ✅ **Wallet Verification** - Verificación real de balances
 - ✅ **Network Fallbacks** - Multiple RPC endpoints
 - ✅ **Error Boundaries** - Manejo robusto de errores
+- ✅ **Domain Protection** - Rate limiting por dominio
+- ✅ **Security Headers** - XSS y clickjacking protection
 
 ### **🎫 Sistema Token Gating**
 - **Verificación Automática** - Balance mínimo requerido
 - **Cache Inteligente** - Optimización de requests
 - **Multi-Network** - Soporte devnet/mainnet
 - **Real-Time Updates** - Balances en tiempo real
+
+### **⚠️ Consideraciones de Seguridad**
+
+**🔒 Para Uso en Producción:**
+- Solo usar RPCs públicos sin API keys en el frontend
+- Implementar rate limiting por IP/dominio
+- Configurar Cloudflare o similar para DDoS protection
+- Monitorear usage analytics para detectar abuse
+- Considerar autenticación adicional para features avanzadas
+
+**🚨 Limitaciones Actuales:**
+- RPCs públicos tienen rate limits naturales
+- Frontend code es público (normal en SPAs)
+- Sin backend auth (apropiado para MVP)
+- Token gating básico (suficiente para demo)
+
+**📊 Para Mainnet:**
+- Usar RPCs privados para backend critical operations
+- Implementar backend API para operaciones sensibles
+- Añadir monitoring y alertas
+- Audit de smart contracts antes de mainnet
 
 ## 📱 **Mobile Optimization Guide**
 
@@ -424,7 +447,7 @@ Agradecimientos especiales a todos los contribuidores que han ayudado a hacer es
 
 | Link | Descripción |
 |------|-------------|
-| 🌐 [**Live Demo**](https://solana-staking-dapp-9azhsfe6b-carlos-projects-c7e924a9.vercel.app) | Prueba la aplicación ahora |
+| 🌐 [**Live Demo**](https://your-deployment-url.vercel.app) | Prueba la aplicación ahora |
 | 📱 [**Mobile Guide**](MOBILE-OPTIMIZATION.md) | Guía completa de optimización móvil |
 | 🔧 [**GitHub Issues**](https://github.com/tu-usuario/solana-staking-dapp/issues) | Reportar bugs o sugerir features |
 | 📚 [**Documentation**](https://github.com/tu-usuario/solana-staking-dapp/wiki) | Documentación completa |
@@ -433,4 +456,4 @@ Agradecimientos especiales a todos los contribuidores que han ayudado a hacer es
 
 **🚀 ¡Comienza a stakear desde tu móvil ahora mismo!**
 
-[![Launch App](https://img.shields.io/badge/🚀_Launch-App_Now-00ff41?style=for-the-badge)](https://solana-staking-dapp-9azhsfe6b-carlos-projects-c7e924a9.vercel.app)
+[![Launch App](https://img.shields.io/badge/🚀_Launch-App_Now-00ff41?style=for-the-badge)](https://your-deployment-url.vercel.app)
