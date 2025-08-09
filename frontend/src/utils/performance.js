@@ -29,7 +29,9 @@ class RateLimiter {
 
   getRemainingTime(key) {
     const userRequests = this.requests.get(key) || [];
-    if (userRequests.length === 0) return 0;
+    if (userRequests.length === 0) {
+      return 0;
+    }
     
     const oldestRequest = Math.min(...userRequests);
     const remaining = this.windowMs - (Date.now() - oldestRequest);
@@ -50,7 +52,9 @@ class SmartCache {
 
   get(key) {
     const item = this.cache.get(key);
-    if (!item) return null;
+    if (!item) {
+      return null;
+    }
     
     if (Date.now() > item.expiry) {
       this.cache.delete(key);
@@ -100,12 +104,16 @@ export function debounce(func, wait, immediate = false) {
   return function executedFunction(...args) {
     const later = () => {
       timeout = null;
-      if (!immediate) func(...args);
+      if (!immediate) {
+        func(...args);
+      }
     };
     const callNow = immediate && !timeout;
     clearTimeout(timeout);
     timeout = setTimeout(later, wait);
-    if (callNow) func(...args);
+    if (callNow) {
+      func(...args);
+    }
   };
 }
 
@@ -118,7 +126,9 @@ export function throttle(func, limit) {
     if (!inThrottle) {
       func.apply(this, args);
       inThrottle = true;
-      setTimeout(() => inThrottle = false, limit);
+      setTimeout(() => {
+        inThrottle = false;
+      }, limit);
     }
   };
 }
@@ -131,7 +141,9 @@ export async function retryWithBackoff(fn, maxRetries = 3, baseDelay = 1000) {
     try {
       return await fn();
     } catch (error) {
-      if (i === maxRetries - 1) throw error;
+      if (i === maxRetries - 1) {
+        throw error;
+      }
       
       const delay = baseDelay * Math.pow(2, i) + Math.random() * 1000;
       await new Promise(resolve => setTimeout(resolve, delay));

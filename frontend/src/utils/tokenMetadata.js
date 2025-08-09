@@ -13,13 +13,13 @@ export async function getTokenMetadata(mintAddress) {
   // Verificar caché
   const cached = tokenMetadataCache.get(mintString);
   if (cached) {
-    console.log(`🔄 Using cached metadata for ${mintString.slice(0, 8)}...`);
+    // console.log(`🔄 Using cached metadata for ${mintString.slice(0, 8)}...`);
     return cached;
   }
 
   // Rate limiting
   if (!rpcRateLimiter.isAllowed(`metadata_${mintString}`)) {
-    console.warn('⚠️ Rate limited for metadata fetch');
+    // console.warn('⚠️ Rate limited for metadata fetch');
     // Return basic fallback if rate limited
     const fallback = createFallbackMetadata(mintString);
     tokenMetadataCache.set(mintString, fallback, 60000); // Cache for 1 minute
@@ -27,7 +27,7 @@ export async function getTokenMetadata(mintAddress) {
   }
 
   try {
-    console.log(`🔍 Fetching metadata for token ${mintString.slice(0, 8)}...`);
+    // console.log(`🔍 Fetching metadata for token ${mintString.slice(0, 8)}...`);
     
     // Intentar obtener información del mint (básica) con retry automático
     const mintInfo = await retryWithBackoff(async () => {
@@ -84,17 +84,17 @@ export async function getTokenMetadata(mintAddress) {
           }
         }
       } catch (metadataError) {
-        console.warn('Could not fetch token metadata:', metadataError.message);
+        // console.warn('Could not fetch token metadata:', metadataError.message);
       }
     }
 
     // Guardar en caché con TTL más largo para metadatos exitosos
     tokenMetadataCache.set(mintString, tokenData, 600000); // 10 minutes
-    console.log(`✅ Metadata cached for ${tokenData.symbol}`);
+    // console.log(`✅ Metadata cached for ${tokenData.symbol}`);
     return tokenData;
 
   } catch (error) {
-    console.error('❌ Error fetching token metadata:', error);
+    // console.error('❌ Error fetching token metadata:', error);
     
     // Fallback básico
     const fallbackData = createFallbackMetadata(mintString);
@@ -154,27 +154,35 @@ function parseTokenMetadata(data) {
     offset += 32;
     
     // Name length (4 bytes)
-    if (offset + 4 > dataBuffer.length) return null;
+    if (offset + 4 > dataBuffer.length) {
+      return null;
+    }
     const nameLength = dataBuffer.readUInt32LE(offset);
     offset += 4;
     
     // Name
-    if (offset + nameLength > dataBuffer.length) return null;
+    if (offset + nameLength > dataBuffer.length) {
+      return null;
+    }
     const name = dataBuffer.subarray(offset, offset + nameLength).toString('utf8').replace(/\0/g, '');
     offset += nameLength;
     
     // Symbol length (4 bytes)
-    if (offset + 4 > dataBuffer.length) return null;
+    if (offset + 4 > dataBuffer.length) {
+      return null;
+    }
     const symbolLength = dataBuffer.readUInt32LE(offset);
     offset += 4;
     
     // Symbol
-    if (offset + symbolLength > dataBuffer.length) return null;
+    if (offset + symbolLength > dataBuffer.length) {
+      return null;
+    }
     const symbol = dataBuffer.subarray(offset, offset + symbolLength).toString('utf8').replace(/\0/g, '');
     
     return { name, symbol };
   } catch (error) {
-    console.warn('Error parsing token metadata:', error);
+    // console.warn('Error parsing token metadata:', error);
     return null;
   }
 }
@@ -204,7 +212,7 @@ export async function getMultipleTokenMetadata(mintAddresses) {
   try {
     return await Promise.all(promises);
   } catch (error) {
-    console.error('Error fetching multiple token metadata:', error);
+    // console.error('Error fetching multiple token metadata:', error);
     return mintAddresses.map(mint => ({
       name: 'Unknown Token',
       symbol: 'UNK',

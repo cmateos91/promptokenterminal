@@ -35,12 +35,12 @@ export const TOKEN_PROGRAM_ID = new PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9
 export async function retryWithFallback(operation) {
   // Primero intentar con mainnet
   const endpointsToTry = isUsingDevnet ? DEVNET_ENDPOINTS : MAINNET_ENDPOINTS;
-  const networkName = isUsingDevnet ? 'DEVNET' : 'MAINNET';
+  // const networkName = isUsingDevnet ? 'DEVNET' : 'MAINNET';
   
   for (let i = 0; i < endpointsToTry.length; i++) {
     const endpoint = endpointsToTry[i];
     try {
-      console.log(`🔄 Trying ${networkName} RPC ${i + 1}/${endpointsToTry.length}: ${endpoint}`);
+      // console.log(`🔄 Trying ${networkName} RPC ${i + 1}/${endpointsToTry.length}: ${endpoint}`);
       const conn = new Connection(endpoint, {
         commitment: 'finalized',
         confirmTransactionInitialTimeout: 30000,
@@ -49,11 +49,11 @@ export async function retryWithFallback(operation) {
       });
       
       const result = await operation(conn);
-      console.log(`✅ ${networkName} RPC ${endpoint} succeeded`);
+      // console.log(`✅ ${networkName} RPC ${endpoint} succeeded`);
       return result;
       
     } catch (error) {
-      console.warn(`❌ ${networkName} RPC ${endpoint} failed:`, error.message);
+      // console.warn(`❌ ${networkName} RPC ${endpoint} failed:`, error.message);
       
       // Esperar antes del siguiente intento
       if (i < endpointsToTry.length - 1) {
@@ -64,7 +64,7 @@ export async function retryWithFallback(operation) {
   
   // Si estamos en mainnet y todos fallan, cambiar a devnet
   if (!isUsingDevnet) {
-    console.log('⚠️ MAINNET failed completely, switching to DEVNET for testing...');
+    // console.log('⚠️ MAINNET failed completely, switching to DEVNET for testing...');
     isUsingDevnet = true;
     return await retryWithFallback(operation);
   }

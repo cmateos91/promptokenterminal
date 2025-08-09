@@ -149,8 +149,8 @@ export const diagnosticCommands = {
     };
   },
 
-  cache: (args) => {
-    const action = args[0] || 'status';
+  cache: () => {
+    // const action = args[0] || 'status';
     
     return {
       type: 'result',
@@ -167,8 +167,8 @@ export const diagnosticCommands = {
     };
   },
 
-  export: (args) => {
-    const type = args[0] || 'logs';
+  export: () => {
+    // const type = args[0] || 'logs';
     
     return {
       type: 'result',

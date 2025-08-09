@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom'
-import { vi } from 'vitest'
+import { vi, beforeEach } from 'vitest'
 
 // Mock de funciones globales
 global.fetch = vi.fn()
@@ -53,6 +53,6 @@ Object.defineProperty(window, 'localStorage', {
 })
 
 // Limpiar mocks después de cada test
-afterEach(() => {
+beforeEach(() => {
   vi.clearAllMocks()
 })

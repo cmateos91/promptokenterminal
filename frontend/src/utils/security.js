@@ -79,7 +79,7 @@ export class InputValidator {
 
     // Remover caracteres peligrosos
     const sanitized = input
-      .replace(/[<>\"']/g, '') // Remove HTML chars
+      .replace(/[<>"']/g, '') // Remove HTML chars
       .replace(/javascript:/gi, '') // Remove javascript: protocol
       .replace(/data:/gi, '') // Remove data: protocol
       .substring(0, maxLength)

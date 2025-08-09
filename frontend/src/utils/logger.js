@@ -21,7 +21,9 @@ class Logger {
   }
 
   log(level, message, data = null, component = null) {
-    if (level > this.level) return;
+    if (level > this.level) {
+      return;
+    }
 
     const timestamp = new Date().toISOString();
     const logEntry = {
@@ -72,18 +74,9 @@ class Logger {
     return names[level] || 'UNKNOWN';
   }
 
-  logToConsole(entry) {
-    const { level, component, message, timestamp, data } = entry;
-    const timeStr = new Date(timestamp).toLocaleTimeString();
-    const prefix = `[${timeStr}] ${level} [${component}]`;
-
-    const style = this.getConsoleStyle(entry.level);
-    
-    if (data) {
-      console.log(`%c${prefix} ${message}`, style, JSON.parse(data));
-    } else {
-      console.log(`%c${prefix} ${message}`, style);
-    }
+  logToConsole() {
+    // Console logging disabled for production build
+    // This method is kept for interface compatibility
   }
 
   getConsoleStyle(level) {

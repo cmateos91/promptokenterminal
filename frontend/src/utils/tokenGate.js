@@ -19,20 +19,20 @@ export async function hasRequiredBalance() {
   // Check cache first
   const cachedResult = balanceCache.get(cacheKey);
   if (cachedResult !== null) {
-    console.log('🔄 Using cached token balance result');
+    // console.log('🔄 Using cached token balance result');
     return cachedResult;
   }
 
   // Rate limiting
   if (!rpcRateLimiter.isAllowed(mockWalletState.address)) {
-    const remainingTime = rpcRateLimiter.getRemainingTime(mockWalletState.address);
-    console.warn(`⚠️ Rate limited. Try again in ${Math.ceil(remainingTime / 1000)}s`);
+    // const remainingTime = rpcRateLimiter.getRemainingTime(mockWalletState.address);
+    // console.warn(`⚠️ Rate limited. Try again in ${Math.ceil(remainingTime / 1000)}s`);
     // Return cached result if available, otherwise assume false
     return balanceCache.get(cacheKey) || false;
   }
 
   try {
-    console.log('🔍 Checking token balance for access control...');
+    // console.log('🔍 Checking token balance for access control...');
     const owner = new PublicKey(mockWalletState.address);
     const ata = await getAssociatedTokenAddress(TOKEN_MINT, owner);
 
@@ -46,11 +46,11 @@ export async function hasRequiredBalance() {
 
     // Cache the result
     balanceCache.set(cacheKey, hasBalance);
-    console.log(`✅ Token balance check: ${hasBalance ? 'PASSED' : 'FAILED'}`);
+    // console.log(`✅ Token balance check: ${hasBalance ? 'PASSED' : 'FAILED'}`);
     
     return hasBalance;
   } catch (err) {
-    console.error('❌ Token balance verification failed:', err);
+    // console.error('❌ Token balance verification failed:', err);
     
     // Cache negative result for shorter time
     balanceCache.set(cacheKey, false, 5000); // 5 seconds
@@ -65,7 +65,7 @@ export function clearBalanceCache() {
   if (mockWalletState.address) {
     const cacheKey = `token_balance_${mockWalletState.address}_${TOKEN_MINT.toBase58()}`;
     balanceCache.cache.delete(cacheKey);
-    console.log('🗑️ Balance cache cleared');
+    // console.log('🗑️ Balance cache cleared');
   }
 }
 
@@ -77,7 +77,7 @@ export async function preloadTokenBalance() {
     try {
       await hasRequiredBalance();
     } catch (error) {
-      console.warn('Preload token balance failed:', error.message);
+      // console.warn('Preload token balance failed:', error.message);
     }
   }
 }

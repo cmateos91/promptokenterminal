@@ -1,6 +1,6 @@
 // Manages wallet and user progression state
 
-export let mockWalletState = {
+export const mockWalletState = {
   connected: false,
   address: null,
   balance: 0,
@@ -15,7 +15,7 @@ export let mockWalletState = {
   isReal: true          // Flag para distinguir datos reales de mock
 };
 
-export let userProgress = {
+export const userProgress = {
   level: 0,
   commandCount: 0,
   secretsFound: 0,

@@ -5,7 +5,7 @@ import { funCommands } from './fun';
 import { systemCommands } from './system';
 import { easterEggCommands } from './easterEggs';
 import { diagnosticCommands } from './diagnostics';
-import { userProgress, checkLevelUp, getUserStatus, mockWalletState } from '../userState';
+import { userProgress, checkLevelUp, getUserStatus } from '../userState';
 import { hasRequiredBalance } from '../tokenGate';
 import { MIN_TOKEN_BALANCE, TOKEN_MINT } from '../config';
 import { getTokenMetadata, formatTokenDisplay } from '../tokenMetadata';
@@ -96,16 +96,16 @@ TAB: autocomplete │ UP/DOWN: command history │ ALIASES: ${aliasList}`
 
 export async function executeCommand(input) {
   const userStatus = getUserStatus();
-  const userAddress = userProgress.walletAddress || mockWalletState.address || 'anonymous';
+  // const userAddress = userProgress.walletAddress || mockWalletState.address || 'anonymous';
   
-  console.log('🎮 Executing command:', input);
+  // console.log('🎮 Executing command:', input);
   
   const [command, ...args] = input.toLowerCase().split(' ');
   const resolvedCommand = aliases[command] || command;
 
   // Check if command exists
   if (!commands[resolvedCommand]) {
-    console.warn('Command not found:', command);
+    // console.warn('Command not found:', command);
     return { 
       type: 'error', 
       content: `❌ Command not found: ${command}\nType "help" for available commands` 
@@ -114,7 +114,7 @@ export async function executeCommand(input) {
 
   // Check if user has access to this command
   if (!userProgress.unlockedCommands.has(resolvedCommand)) {
-    console.warn('Command access denied - not unlocked:', resolvedCommand);
+    // console.warn('Command access denied - not unlocked:', resolvedCommand);
     return {
       type: 'error',
       content: `🔒 Command "${resolvedCommand}" not unlocked at your current level\nCurrent: [${userStatus.level}] ${userStatus.name}`
@@ -133,7 +133,7 @@ export async function executeCommand(input) {
       const allowed = await hasRequiredBalance();
       
       if (!allowed) {
-        console.warn('Token gate check failed:', resolvedCommand);
+        // console.warn('Token gate check failed:', resolvedCommand);
         
         const tokenData = await getTokenMetadata(TOKEN_MINT);
         const tokenDisplay = formatTokenDisplay(tokenData);
@@ -143,7 +143,7 @@ export async function executeCommand(input) {
         };
       }
     } catch (error) {
-      console.error('Token verification failed:', error.message);
+      // console.error('Token verification failed:', error.message);
       return {
         type: 'error',
         content: `🚫 ACCESS DENIED\nToken verification failed: ${error.message}`
@@ -154,16 +154,16 @@ export async function executeCommand(input) {
   userProgress.commandCount++;
 
   try {
-    console.log('Executing command:', resolvedCommand, 'with args:', args);
+    // console.log('Executing command:', resolvedCommand, 'with args:', args);
     
     const result = await commands[resolvedCommand](args);
     
-    console.log('Command executed successfully:', resolvedCommand);
+    // console.log('Command executed successfully:', resolvedCommand);
     
     const leveledUp = checkLevelUp(resolvedCommand);
     if (leveledUp) {
       const newStatus = getUserStatus();
-      console.log('User leveled up:', newStatus.level);
+      // console.log('User leveled up:', newStatus.level);
       
       const levelUpMsg = `\n\n━━━ 🎉 LEVEL UP! 🎉 ━━━\nAccess Level: [${newStatus.level}] ${newStatus.name}\nNew commands unlocked! Use 'help' to see them.`;
       result.content += levelUpMsg;
@@ -171,7 +171,7 @@ export async function executeCommand(input) {
 
     return result;
   } catch (error) {
-    console.error('Command execution failed:', error);
+    // console.error('Command execution failed:', error);
     
     return { 
       type: 'error', 

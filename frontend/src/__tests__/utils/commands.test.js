@@ -17,7 +17,7 @@ vi.mock('../../utils/security', async (importOriginal) => {
   const actual = await importOriginal()
   return {
     ...actual,
-    secureCommandExecution: vi.fn((input, level, address) => ({
+    secureCommandExecution: vi.fn((input) => ({
       valid: true,
       command: input,
       remaining: 10

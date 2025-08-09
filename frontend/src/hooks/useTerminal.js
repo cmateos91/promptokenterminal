@@ -20,8 +20,6 @@ export function useTerminal() {
   const outputRef = useRef(null);
   const idleTimeoutRef = useRef(null);
 
-
-
   // Auto-focus input (existente)
   useEffect(() => {
     inputRef.current?.focus();
@@ -130,7 +128,9 @@ export function useTerminal() {
   // Función handleSubmit MEJORADA según tu documento
   const handleSubmit = useCallback(async (e) => {
     e.preventDefault();
-    if (!input.trim() || isLoading) return;
+    if (!input.trim() || isLoading) {
+      return;
+    }
 
     const command = input.trim();
     const newEntry = { type: 'command', content: command };

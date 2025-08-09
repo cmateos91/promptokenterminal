@@ -1,7 +1,7 @@
 import { LAMPORTS_PER_SOL, PublicKey } from '@solana/web3.js';
 import { connection, TOKEN_PROGRAM_ID, retryWithFallback, getNetworkInfo } from '../solana';
 import { mockWalletState, userProgress } from '../userState';
-import { getTokenMetadata, formatTokenDisplay } from '../tokenMetadata';
+import { getTokenMetadata } from '../tokenMetadata';
 
 export const walletCommands = {
   connect: async (args) => {
@@ -21,7 +21,9 @@ export const walletCommands = {
     }
 
     const getProvider = () => {
-      if (typeof window === 'undefined') return null;
+      if (typeof window === 'undefined') {
+        return null;
+      }
       switch (wallet) {
         case 'phantom':
           return window?.phantom?.solana || (window?.solana?.isPhantom ? window.solana : null);

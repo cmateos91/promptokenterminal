@@ -76,12 +76,11 @@ export const stakingCommands = {
     }
 
     // Validación con security utils
-    const amountValidation = InputValidator.isValidNumber(args[0], {
-      min: 0.001,
-      max: mockWalletState.stakedAmount,
-      allowDecimals: true,
-      maxDecimals: 9
-    });
+    const amountValidation = validateTransactionAmount(
+      args[0],
+      mockWalletState.stakedAmount,
+      9
+    );
 
     if (!amountValidation.valid) {
       return { 
