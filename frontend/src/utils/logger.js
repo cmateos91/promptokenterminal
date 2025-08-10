@@ -249,7 +249,7 @@ export const commandLogger = new Logger({
 });
 
 // Export the Logger class for testing
-export { Logger, PerformanceLogger };
+export { Logger };
 
 // Initialize persisted logs
 logger.loadPersistedLogs();
@@ -274,5 +274,151 @@ window.addEventListener('unhandledrejection', (event) => {
     stack: event.reason?.stack
   });
 });
+
+// 🤖 AI Development helpers
+export const devLogger = {
+  // Comando específico para debugging con IA
+  command: (cmd, result, error = null) => {
+    const emoji = error ? '❌' : '✅';
+    const message = `${emoji} Command: ${cmd}`;
+    const data = { result, error, timestamp: Date.now() };
+    
+    if (error) {
+      commandLogger.error(message, data);
+    } else {
+      commandLogger.info(message, data);
+    }
+    
+    // Log to console for immediate debugging
+    if (import.meta.env.DEV) {
+      // eslint-disable-next-line no-console
+      console.group(`🤖 ${message}`);
+      // eslint-disable-next-line no-console
+      console.log('Result:', result);
+      if (error) {
+        // eslint-disable-next-line no-console
+        console.error('Error:', error);
+      }
+      // eslint-disable-next-line no-console
+      console.groupEnd();
+    }
+  },
+  
+  // Estado de wallet para IA
+  wallet: (status, address = null, balance = null) => {
+    const message = `💰 Wallet: ${status}`;
+    const data = { status, address, balance, timestamp: Date.now() };
+    
+    walletLogger.info(message, data);
+    
+    if (import.meta.env.DEV) {
+      // eslint-disable-next-line no-console
+      console.log(`💰 Wallet Status: ${status}`, { address, balance });
+    }
+  },
+  
+  // Performance para optimización
+  performance: (operation, duration, threshold = 1000) => {
+    const emoji = duration > threshold ? '🐌' : '⚡';
+    const message = `${emoji} ${operation}: ${duration.toFixed(2)}ms`;
+    
+    if (duration > threshold) {
+      performanceLogger.logger.warn(message, { operation, duration, threshold });
+    } else {
+      performanceLogger.logger.debug(message, { operation, duration });
+    }
+    
+    if (import.meta.env.DEV) {
+      // eslint-disable-next-line no-console
+      console.log(`⚡ Performance: ${operation}`, `${duration.toFixed(2)}ms`);
+    }
+  },
+  
+  // Error específico para debugging
+  error: (context, error, data = {}) => {
+    const message = `❌ ${context}: ${error.message || error}`;
+    const errorData = {
+      context,
+      error: error.message || error,
+      stack: error.stack,
+      ...data,
+      timestamp: Date.now()
+    };
+    
+    logger.error(message, errorData);
+    
+    if (import.meta.env.DEV) {
+      // eslint-disable-next-line no-console
+      console.error(`❌ ${context}:`, error, data);
+    }
+  },
+  
+  // Network/RPC status
+  network: (status, rpc = null, latency = null) => {
+    const message = `🌐 Network: ${status}`;
+    const data = { status, rpc, latency, timestamp: Date.now() };
+    
+    rpcLogger.info(message, data);
+    
+    if (import.meta.env.DEV) {
+      // eslint-disable-next-line no-console
+      console.log(`🌐 Network: ${status}`, { rpc, latency });
+    }
+  },
+  
+  // Security events
+  security: (event, severity = 'info', data = {}) => {
+    const emoji = severity === 'error' ? '🚨' : severity === 'warn' ? '⚠️' : '🔒';
+    const message = `${emoji} Security: ${event}`;
+    
+    const securityData = { event, severity, ...data, timestamp: Date.now() };
+    
+    if (severity === 'error') {
+      logger.error(message, securityData);
+    } else if (severity === 'warn') {
+      logger.warn(message, securityData);
+    } else {
+      logger.info(message, securityData);
+    }
+    
+    if (import.meta.env.DEV) {
+      // eslint-disable-next-line no-console
+      console.log(`🔒 Security: ${event}`, data);
+    }
+  },
+  
+  // Mobile-specific events
+  mobile: (event, data = {}) => {
+    const message = `📱 Mobile: ${event}`;
+    const mobileData = { event, ...data, timestamp: Date.now() };
+    
+    logger.info(message, mobileData);
+    
+    if (import.meta.env.DEV) {
+      // eslint-disable-next-line no-console
+      console.log(`📱 Mobile: ${event}`, data);
+    }
+  },
+  
+  // AI debugging helper - exportar logs formateados
+  exportForAI: () => {
+    const recentLogs = logger.getLogs({
+      since: new Date(Date.now() - 30 * 60 * 1000) // Last 30 minutes
+    });
+    
+    const formatted = recentLogs.map(log => 
+      `[${log.timestamp}] ${log.level} ${log.component}: ${log.message}${
+        log.data ? ` | Data: ${log.data}` : ''
+      }`
+    ).join('\n');
+    
+    // eslint-disable-next-line no-console
+    console.log('🤖 Logs for AI Analysis:');
+    // eslint-disable-next-line no-console
+    console.log(formatted);
+    
+    return formatted;
+  }
+};
 
 export default logger;

@@ -116,7 +116,7 @@ export function useTerminal() {
   useEffect(() => {
     const handleDocumentClick = (e) => {
       // En móvil, no forzar focus automático
-      if (isMobileRef.current) return;
+      if (isMobileRef.current) {return;}
       
       const isClickOnSuggestion = e.target.closest('.suggestion-item');
       const isClickOnInput = e.target.closest('.terminal-input');
@@ -138,7 +138,7 @@ export function useTerminal() {
 
   // Touch handlers para móvil
   useEffect(() => {
-    if (!isMobileRef.current) return;
+    if (!isMobileRef.current) {return;}
 
     const handleTouchStart = (e) => {
       // Prevenir comportamientos por defecto en ciertos elementos

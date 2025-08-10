@@ -33,7 +33,7 @@ export default function Terminal() {
 
   // Prevenir comportamientos por defecto en móvil
   useEffect(() => {
-    if (!isMobile) return;
+    if (!isMobile) {return;}
 
     const preventDefault = (e) => {
       // Prevenir pull-to-refresh en ciertos elementos

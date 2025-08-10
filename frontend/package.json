@@ -7,12 +7,15 @@
   "scripts": {
     "dev": "vite --host",
     "build": "vite build",
+    "vercel-build": "npm run build",
     "preview": "vite preview --host",
     "setup": "npm install",
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
+    "test:quick": "vitest run --reporter=basic",
+    "deploy:safe": "npm run test:quick && npm run build",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "lint:fix": "eslint . --ext js,jsx --fix"
   },

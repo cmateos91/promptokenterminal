@@ -4,6 +4,7 @@
 
 import { mockWalletState, userProgress, getUserStatus } from '../userState';
 import { getNetworkInfo } from '../solana';
+import { devLogger, logger } from '../logger';
 
 export const diagnosticCommands = {
   debug: (args) => {
@@ -161,20 +162,206 @@ export const diagnosticCommands = {
   logs: (args) => {
     const filter = args[0] || 'all';
     
-    return {
-      type: 'result',
-      content: `📋 SYSTEM LOGS (${filter.toUpperCase()})\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\nLogging system active\nFilter: ${filter}\n\nLogs are being collected in the background`
-    };
+    try {
+      let logs;
+      
+      switch (filter.toLowerCase()) {
+        case 'wallet':
+          logs = logger.getLogs({ component: 'WALLET' }).slice(-10);
+          break;
+        case 'command':
+          logs = logger.getLogs({ component: 'COMMAND' }).slice(-10);
+          break;
+        case 'error':
+          logs = logger.getLogs().filter(log => log.level === 'ERROR').slice(-10);
+          break;
+        case 'recent':
+          logs = logger.getLogs({
+            since: new Date(Date.now() - 5 * 60 * 1000) // Last 5 minutes
+          }).slice(-15);
+          break;
+        default:
+          logs = logger.getLogs().slice(-10);
+      }
+      
+      if (logs.length === 0) {
+        return {
+          type: 'result',
+          content: `📋 No logs found for filter: ${filter}`
+        };
+      }
+      
+      const logDisplay = logs.map(log => {
+        const time = new Date(log.timestamp).toLocaleTimeString();
+        return `[${time}] ${log.level} ${log.component}: ${log.message}`;
+      }).join('\n');
+      
+      return {
+        type: 'result',
+        content: `📋 SYSTEM LOGS (${filter.toUpperCase()})\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n${logDisplay}\n\nFilters: all, wallet, command, error, recent`
+      };
+    } catch (error) {
+      devLogger.error('logs command', error);
+      return {
+        type: 'error',
+        content: 'Error retrieving logs: ' + error.message
+      };
+    }
   },
 
-  export: () => {
-    // const type = args[0] || 'logs';
+  export: (args) => {
+    const type = args[0] || 'logs';
     
-    return {
-      type: 'result',
-      content: `📤 EXPORT OPTIONS\n\nAvailable exports:\n• logs - System logs\n• debug - Debug information\n\nUsage: export <logs|debug>\n\nExport functionality ready`
-    };
+    try {
+      let exported;
+      
+      switch (type.toLowerCase()) {
+        case 'logs':
+          exported = devLogger.exportForAI();
+          break;
+        case 'debug': {
+          const debugData = {
+            timestamp: new Date().toISOString(),
+            wallet: mockWalletState,
+            user: getUserStatus(),
+            network: getNetworkInfo(),
+            performance: {
+              memory: performance.memory ? {
+                used: Math.round(performance.memory.usedJSHeapSize / 1024 / 1024),
+                total: Math.round(performance.memory.totalJSHeapSize / 1024 / 1024)
+              } : 'Not available'
+            }
+          };
+          exported = JSON.stringify(debugData, null, 2);
+          // Console log for debugging
+          if (import.meta.env.DEV) {
+            // eslint-disable-next-line no-console
+            console.log('🤖 Debug Data for AI:', debugData);
+          }
+          break;
+        }
+        case 'ai': {
+          // Export formatted for AI analysis
+          const aiAnalysisData = {
+            logs: logger.getLogs({ since: new Date(Date.now() - 30 * 60 * 1000) }),
+            wallet: mockWalletState,
+            user: getUserStatus(),
+            commands: userProgress,
+            errors: logger.getLogs().filter(log => log.level === 'ERROR')
+          };
+          exported = JSON.stringify(aiAnalysisData, null, 2);
+          // Console log for debugging
+          if (import.meta.env.DEV) {
+            // eslint-disable-next-line no-console
+            console.log('🤖 AI Analysis Data:', aiAnalysisData);
+          }
+          break;
+        }
+        default:
+          return {
+            type: 'error',
+            content: 'Unknown export type. Use: logs, debug, ai'
+          };
+      }
+      
+      // Copy to clipboard if available
+      if (navigator.clipboard && exported) {
+        navigator.clipboard.writeText(exported).catch(() => {});
+      }
+      
+      return {
+        type: 'result',
+        content: `📤 EXPORTED ${type.toUpperCase()}\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\nData exported to console and clipboard\nCheck browser console for full output\n\nTypes: logs, debug, ai`
+      };
+    } catch (error) {
+      devLogger.error('export command', error);
+      return {
+        type: 'error',
+        content: 'Export failed: ' + error.message
+      };
+    }
+  },
+  
+  // 🤖 Nuevo comando específico para IA
+  ai: (args) => {
+    const action = args[0] || 'status';
+    
+    switch (action.toLowerCase()) {
+      case 'status': {
+        return {
+          type: 'result',
+          content: `🤖 AI DEVELOPMENT MODE\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\nStatus: Active\nLogging: Enhanced\nDebug Mode: ${import.meta.env.DEV ? 'ON' : 'OFF'}\n\nCommands:\n• ai export - Export data for AI\n• ai logs - Recent logs for analysis\n• ai debug - Debug info for AI\n• ai clear - Clear all logs`
+        };
+      }
+        
+      case 'export': {
+        devLogger.exportForAI();
+        return {
+          type: 'result',
+          content: `🤖 Data exported to console for AI analysis\nCheck browser console for formatted logs`
+        };
+      }
+        
+      case 'logs': {
+        const recentLogs = logger.getLogs({ 
+          since: new Date(Date.now() - 10 * 60 * 1000) 
+        }).slice(-5);
+        const logDisplay = recentLogs.map(log => 
+          `${log.level}: ${log.message}`
+        ).join('\n');
+        return {
+          type: 'result',
+          content: `🤖 Recent Logs for AI:\n${logDisplay}`
+        };
+      }
+        
+      case 'debug': {
+        const debugInfo = {
+          wallet: mockWalletState.connected ? 'Connected' : 'Disconnected',
+          user: getUserStatus().name,
+          commands: userProgress.commandCount,
+          errors: logger.getLogs().filter(l => l.level === 'ERROR').length
+        };
+        return {
+          type: 'result',
+          content: `🤖 Debug Summary:\n${JSON.stringify(debugInfo, null, 2)}`
+        };
+      }
+        
+      case 'clear': {
+        logger.clearLogs();
+        return {
+          type: 'result',
+          content: '🤖 All logs cleared for fresh AI analysis'
+        };
+      }
+        
+      default:
+        return {
+          type: 'result',
+          content: 'AI commands: status, export, logs, debug, clear'
+        };
+    }
   }
 };
+
+// Add devLogger integration to existing commands
+Object.keys(diagnosticCommands).forEach(cmd => {
+  const originalCommand = diagnosticCommands[cmd];
+  diagnosticCommands[cmd] = (...args) => {
+    const startTime = performance.now();
+    try {
+      const result = originalCommand(...args);
+      const duration = performance.now() - startTime;
+      devLogger.command(`diagnostic:${cmd}`, result, null);
+      devLogger.performance(`diagnostic:${cmd}`, duration);
+      return result;
+    } catch (error) {
+      devLogger.command(`diagnostic:${cmd}`, null, error);
+      devLogger.error(`diagnostic:${cmd}`, error);
+      throw error;
+    }
+  };
+});
 
 export default diagnosticCommands;
