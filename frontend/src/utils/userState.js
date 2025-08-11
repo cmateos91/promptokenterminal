@@ -20,7 +20,7 @@ export const userProgress = {
   commandCount: 0,
   secretsFound: 0,
   achievements: [],
-  unlockedCommands: new Set(['help', 'about', 'version', 'banner', 'clear', 'time', 'ping', 'price', 'slot', 'flip', 'dice', 'connect', 'levelup', 'reset']),
+  unlockedCommands: new Set(['help', 'about', 'version', 'banner', 'clear', 'time', 'ping', 'price', 'slot', 'flip', 'dice', 'connect', 'levelup', 'reset', 'logs', 'debug', 'health', 'performance', 'cache', 'export', 'ai']),
   secretsFoundSet: new Set()
 };
 

@@ -290,7 +290,7 @@ export const diagnosticCommands = {
       case 'status': {
         return {
           type: 'result',
-          content: `🤖 AI DEVELOPMENT MODE\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\nStatus: Active\nLogging: Enhanced\nDebug Mode: ${import.meta.env.DEV ? 'ON' : 'OFF'}\n\nCommands:\n• ai export - Export data for AI\n• ai logs - Recent logs for analysis\n• ai debug - Debug info for AI\n• ai clear - Clear all logs`
+          content: `🤖 AI DEVELOPMENT MODE\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\nStatus: Active\nLogging: Enhanced\nDebug Mode: ${import.meta.env.DEV ? 'ON' : 'OFF'}\nContracts: Ready for Integration\n\nCommands:\n• ai export - Export data for AI\n• ai logs - Recent logs for analysis\n• ai debug - Debug info for AI\n• ai clear - Clear all logs\n• ai contracts - Contract development status`
         };
       }
         
@@ -328,6 +328,23 @@ export const diagnosticCommands = {
         };
       }
         
+      case 'contracts': {
+        // Contract development status for AI
+        const contractStatus = {
+          frontend_integration: true,
+          service_ready: true,
+          tests_available: true,
+          ai_debugging: true,
+          mock_mode: true,
+          ready_for_deployment: false
+        };
+        
+        return {
+          type: 'result',
+          content: `🏗️ AI CONTRACT DEVELOPMENT STATUS\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n📱 Frontend Integration: ${contractStatus.frontend_integration ? '✅ Ready' : '❌ Missing'}\n🛠️ Service Layer: ${contractStatus.service_ready ? '✅ Implemented' : '❌ Missing'}\n🧪 Tests: ${contractStatus.tests_available ? '✅ Available' : '❌ Missing'}\n🤖 AI Debugging: ${contractStatus.ai_debugging ? '✅ Active' : '❌ Disabled'}\n🗂️ Mock Mode: ${contractStatus.mock_mode ? '✅ Running' : '❌ Off'}\n🚀 Deployment Ready: ${contractStatus.ready_for_deployment ? '✅ Yes' : '⚠️ Pending'}\n\n📄 Next Steps:\n• Run setup-contracts.sh\n• Install Anchor framework\n• Deploy to devnet\n• Update frontend integration\n\n🤖 All groundwork prepared for AI assistance!`
+        };
+      }
+        
       case 'clear': {
         logger.clearLogs();
         return {
@@ -339,7 +356,7 @@ export const diagnosticCommands = {
       default:
         return {
           type: 'result',
-          content: 'AI commands: status, export, logs, debug, clear'
+          content: 'AI commands: status, export, logs, debug, clear, contracts'
         };
     }
   }

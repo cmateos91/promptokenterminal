@@ -1,0 +1,39 @@
+{
+  "name": "prompt-staking-contracts",
+  "version": "1.0.0",
+  "description": "Smart contracts for PROMPT token staking",
+  "main": "index.js",
+  "scripts": {
+    "test": "anchor test",
+    "test:unit": "anchor test --file tests/unit",
+    "test:integration": "anchor test --file tests/integration", 
+    "build": "anchor build",
+    "deploy:devnet": "anchor deploy --provider.cluster devnet",
+    "deploy:mainnet": "anchor deploy --provider.cluster mainnet",
+    "lint": "eslint . --ext .ts",
+    "lint:fix": "eslint . --ext .ts --fix",
+    "docs": "typedoc --out docs src/",
+    "clean": "anchor clean"
+  },
+  "devDependencies": {
+    "@coral-xyz/anchor": "^0.30.1",
+    "@solana/web3.js": "^1.98.4",
+    "@solana/spl-token": "^0.4.13",
+    "@types/mocha": "^10.0.6",
+    "@types/node": "^20.10.0",
+    "typescript": "^5.3.3",
+    "ts-mocha": "^10.0.0",
+    "chai": "^4.3.10",
+    "mocha": "^10.2.0",
+    "eslint": "^8.57.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "typedoc": "^0.25.4"
+  },
+  "dependencies": {
+    "@coral-xyz/borsh": "^0.30.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

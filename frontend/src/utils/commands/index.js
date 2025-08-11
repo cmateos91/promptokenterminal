@@ -71,6 +71,7 @@ DIAGNOSTICS
   performance      │ Performance metrics
   cache <action>   │ Cache management (status|stats|clear)
   export <type>    │ Export data (logs|debug)
+  ai <action>      │ AI development helper (status|export|logs|debug)
 
 FUN
   flip             │ Flip a coin
@@ -125,7 +126,7 @@ export async function executeCommand(input) {
   const unrestricted = new Set([
     'help', 'connect', 'disconnect', 'clear', 'banner', 'version', 'about', 
     'ping', 'time', 'whoami', 'logs', 'debug', 'health', 'performance', 
-    'cache', 'export'
+    'cache', 'export', 'ai'
   ]);
   
   if (!unrestricted.has(resolvedCommand)) {
