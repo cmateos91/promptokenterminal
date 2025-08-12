@@ -365,6 +365,58 @@ body {
   60%, 100% { opacity: 1; }
 }
 
+/* Game display styles */
+.game-display {
+  margin: 10px 0;
+  animation: gameStart 0.5s ease-out;
+}
+
+@keyframes gameStart {
+  0% { opacity: 0; transform: scale(0.95); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+.game-display pre {
+  font-family: 'Courier New', Courier, monospace !important;
+  font-size: 11px !important;
+  line-height: 1.1 !important;
+  color: var(--prompt-green) !important;
+  background: rgba(0, 0, 0, 0.8) !important;
+  border: 2px solid var(--prompt-green) !important;
+  border-radius: 8px !important;
+  padding: 12px !important;
+  margin: 8px 0 !important;
+  overflow: auto !important;
+  max-width: 100% !important;
+  text-shadow: 0 0 3px var(--prompt-green) !important;
+  box-shadow: 
+    0 0 20px rgba(0, 255, 65, 0.3),
+    inset 0 0 20px rgba(0, 255, 65, 0.1) !important;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: var(--prompt-green) transparent;
+}
+
+.game-display pre::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.game-display pre::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 3px;
+}
+
+.game-display pre::-webkit-scrollbar-thumb {
+  background: var(--prompt-green);
+  border-radius: 3px;
+  box-shadow: 0 0 5px var(--prompt-green);
+}
+
+.game-display pre::-webkit-scrollbar-corner {
+  background: rgba(0, 0, 0, 0.3);
+}
+
 .cursor {
   animation: blink 1s infinite;
   color: var(--prompt-bright-green);
@@ -549,6 +601,14 @@ body {
   .stat-value {
     font-size: 9px;
   }
+  
+  /* Game display móvil */
+  .game-display pre {
+    font-size: 9px !important;
+    padding: 8px !important;
+    line-height: 1.0 !important;
+    border-width: 1px !important;
+  }
 }
 
 @media (max-width: 480px) {
@@ -615,6 +675,14 @@ body {
   .footer-text {
     font-size: 7px;
     line-height: 1.4;
+  }
+  
+  /* Game display móvil pequeño */
+  .game-display pre {
+    font-size: 8px !important;
+    padding: 6px !important;
+    line-height: 0.9 !important;
+    margin: 6px 0 !important;
   }
 }
 

@@ -1,5 +1,20 @@
 import { mockWalletState, userProgress, getUserStatus } from '../userState';
 
+// Validation for development commands - only allow on localhost:3000
+const isDevelopmentEnvironment = () => {
+  return window.location.hostname === 'localhost' && window.location.port === '3000';
+};
+
+const requireDevelopmentEnvironment = (commandName) => {
+  if (!isDevelopmentEnvironment()) {
+    return {
+      type: 'error',
+      content: `🚫 DEVELOPMENT COMMAND RESTRICTED\n\nThe "${commandName}" command is only available in development environment.\n\nRequired: http://localhost:3000\nCurrent: ${window.location.href}\n\n🔒 This command is restricted for security reasons.`
+    };
+  }
+  return null;
+};
+
 export const systemCommands = {
   clear: () => ({
     type: 'clear',
@@ -27,6 +42,12 @@ export const systemCommands = {
 
   // Comando de desarrollo para subir de nivel
   levelup: (args) => {
+    // Check development environment first
+    const devEnvCheck = requireDevelopmentEnvironment('levelup');
+    if (devEnvCheck) {
+      return devEnvCheck;
+    }
+    
     const targetLevel = args[0] ? parseInt(args[0]) : 4;
     
     if (isNaN(targetLevel) || targetLevel < 0 || targetLevel > 4) {

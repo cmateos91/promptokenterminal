@@ -98,6 +98,26 @@ export default function Terminal() {
             <span className="loading-spinner">▒░▒</span> {item.content}
           </div>
         );
+      case 'game':
+        return (
+          <div key={index} className="command-result game-display">
+            <pre style={{
+              fontFamily: 'Courier New, monospace',
+              whiteSpace: 'pre',
+              background: '#0a0a0a',
+              color: '#00ff00',
+              padding: '1rem',
+              margin: '0.5rem 0',
+              border: '1px solid #00ff00',
+              borderRadius: '4px',
+              fontSize: '12px',
+              lineHeight: '1.2',
+              overflow: 'auto'
+            }}>
+              {item.content}
+            </pre>
+          </div>
+        );
       default:
         return (
           <div key={index} className="command-result">

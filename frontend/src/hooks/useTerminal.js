@@ -314,6 +314,14 @@ export function useTerminal() {
     setHistory(prev => [...prev, message]);
   }, []);
 
+  // Expose addMessage to window for games
+  useEffect(() => {
+    window.terminalAddMessage = addMessage;
+    return () => {
+      delete window.terminalAddMessage;
+    };
+  }, [addMessage]);
+
   const clearTerminal = useCallback(() => {
     setHistory([
       { type: 'welcome', content: 'PROMPT STAKING TERMINAL v1.0.0' },

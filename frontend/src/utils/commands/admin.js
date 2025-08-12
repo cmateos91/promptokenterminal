@@ -7,8 +7,29 @@ import { mockWalletState } from '../userState';
 import { devLogger } from '../logger';
 import { realStakingService } from '../../services/stakingContractReal';
 
+// Validation for development commands - only allow on localhost:3000
+const isDevelopmentEnvironment = () => {
+  return window.location.hostname === 'localhost' && window.location.port === '3000';
+};
+
+const requireDevelopmentEnvironment = (commandName) => {
+  if (!isDevelopmentEnvironment()) {
+    return {
+      type: 'error',
+      content: `🚫 DEVELOPMENT COMMAND RESTRICTED\n\nThe "${commandName}" command is only available in development environment.\n\nRequired: http://localhost:3000\nCurrent: ${window.location.href}\n\n🔒 This command is restricted for security reasons.`
+    };
+  }
+  return null;
+};
+
 export const adminCommands = {
   'setup-pool': async (args) => {
+    // Check development environment first
+    const devEnvCheck = requireDevelopmentEnvironment('setup-pool');
+    if (devEnvCheck) {
+      return devEnvCheck;
+    }
+    
     const startTime = performance.now();
     
     try {
@@ -67,6 +88,12 @@ setup-pool DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263 EPjFWdd5AufqSSqeM2qN1xzy
   },
 
   'contract-info': async () => {
+    // Check development environment first
+    const devEnvCheck = requireDevelopmentEnvironment('contract-info');
+    if (devEnvCheck) {
+      return devEnvCheck;
+    }
+    
     const startTime = performance.now();
     
     try {
@@ -90,6 +117,12 @@ setup-pool DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263 EPjFWdd5AufqSSqeM2qN1xzy
   },
 
   'test-connection': async () => {
+    // Check development environment first
+    const devEnvCheck = requireDevelopmentEnvironment('test-connection');
+    if (devEnvCheck) {
+      return devEnvCheck;
+    }
+    
     const startTime = performance.now();
     
     try {

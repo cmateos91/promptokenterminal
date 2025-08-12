@@ -6,8 +6,29 @@ import { mockWalletState, userProgress, getUserStatus } from '../userState';
 import { getNetworkInfo } from '../solana';
 import { devLogger, logger } from '../logger';
 
+// Validation for development commands - only allow on localhost:3000
+const isDevelopmentEnvironment = () => {
+  return window.location.hostname === 'localhost' && window.location.port === '3000';
+};
+
+const requireDevelopmentEnvironment = (commandName) => {
+  if (!isDevelopmentEnvironment()) {
+    return {
+      type: 'error',
+      content: `🚫 DEVELOPMENT COMMAND RESTRICTED\n\nThe "${commandName}" command is only available in development environment.\n\nRequired: http://localhost:3000\nCurrent: ${window.location.href}\n\n🔒 This command is restricted for security reasons.`
+    };
+  }
+  return null;
+};
+
 export const diagnosticCommands = {
   debug: (args) => {
+    // Check development environment first
+    const devEnvCheck = requireDevelopmentEnvironment('debug');
+    if (devEnvCheck) {
+      return devEnvCheck;
+    }
+    
     const component = args[0] || 'system';
     const userStatus = getUserStatus();
     const networkInfo = getNetworkInfo();
@@ -68,6 +89,12 @@ export const diagnosticCommands = {
   },
 
   health: async () => {
+    // Check development environment first
+    const devEnvCheck = requireDevelopmentEnvironment('health');
+    if (devEnvCheck) {
+      return devEnvCheck;
+    }
+    
     const checks = [];
     
     // Wallet health
@@ -119,6 +146,12 @@ export const diagnosticCommands = {
   },
 
   performance: () => {
+    // Check development environment first
+    const devEnvCheck = requireDevelopmentEnvironment('performance');
+    if (devEnvCheck) {
+      return devEnvCheck;
+    }
+    
     const stats = {
       memoryUsage: performance.memory ? {
         used: Math.round(performance.memory.usedJSHeapSize / 1024 / 1024),
@@ -151,6 +184,12 @@ export const diagnosticCommands = {
   },
 
   cache: () => {
+    // Check development environment first
+    const devEnvCheck = requireDevelopmentEnvironment('cache');
+    if (devEnvCheck) {
+      return devEnvCheck;
+    }
+    
     // const action = args[0] || 'status';
     
     return {
@@ -160,6 +199,12 @@ export const diagnosticCommands = {
   },
 
   logs: (args) => {
+    // Check development environment first
+    const devEnvCheck = requireDevelopmentEnvironment('logs');
+    if (devEnvCheck) {
+      return devEnvCheck;
+    }
+    
     const filter = args[0] || 'all';
     
     try {
@@ -210,6 +255,12 @@ export const diagnosticCommands = {
   },
 
   export: (args) => {
+    // Check development environment first
+    const devEnvCheck = requireDevelopmentEnvironment('export');
+    if (devEnvCheck) {
+      return devEnvCheck;
+    }
+    
     const type = args[0] || 'logs';
     
     try {
@@ -284,6 +335,12 @@ export const diagnosticCommands = {
   
   // 🤖 Nuevo comando específico para IA
   ai: (args) => {
+    // Check development environment first
+    const devEnvCheck = requireDevelopmentEnvironment('ai');
+    if (devEnvCheck) {
+      return devEnvCheck;
+    }
+    
     const action = args[0] || 'status';
     
     switch (action.toLowerCase()) {

@@ -6,10 +6,26 @@ import { systemCommands } from './system';
 import { easterEggCommands } from './easterEggs';
 import { diagnosticCommands } from './diagnostics';
 import { adminCommands } from './admin';
+import { gameCommands } from './games';
 import { userProgress, checkLevelUp, getUserStatus } from '../userState';
 import { hasRequiredBalance } from '../tokenGate';
 import { MIN_TOKEN_BALANCE, TOKEN_MINT } from '../config';
 import { getTokenMetadata, formatTokenDisplay } from '../tokenMetadata';
+
+// Validation for development commands - only allow on localhost:3000
+const isDevelopmentEnvironment = () => {
+  return window.location.hostname === 'localhost' && window.location.port === '3000';
+};
+
+const requireDevelopmentEnvironment = (commandName) => {
+  if (!isDevelopmentEnvironment()) {
+    return {
+      type: 'error',
+      content: `🚫 DEVELOPMENT COMMAND RESTRICTED\n\nThe "${commandName}" command is only available in development environment.\n\nRequired: http://localhost:3000\nCurrent: ${window.location.href}\n\n🔒 This command is restricted for security reasons.`
+    };
+  }
+  return null;
+};
 
 const commands = {
   ...walletCommands,
@@ -19,7 +35,8 @@ const commands = {
   ...systemCommands,
   ...easterEggCommands,
   ...diagnosticCommands,
-  ...adminCommands
+  ...adminCommands,
+  ...gameCommands
 };
 
 const aliases = {
@@ -27,7 +44,7 @@ const aliases = {
   'bal': 'balance', 'conn': 'connect', 'disc': 'disconnect', 'winfo': 'walletinfo',
   'tinfo': 'tokeninfo', 'ti': 'tokeninfo',
   'pr': 'price', 'sol': 'price', 'sl': 'slot',
-  'coin': 'flip', 'roll': 'dice',
+  'coin': 'flip', 'roll': 'dice', 'game': 'play', 'games': 'play',
   // Diagnostic aliases
   'diag': 'debug', 'healthcheck': 'health', 'perf': 'performance',
   // Development aliases
@@ -78,6 +95,7 @@ DIAGNOSTICS
 FUN
   flip             │ Flip a coin
   dice             │ Roll a six-sided die
+  play <game>      │ Play mini-games (snake, arkanoid, pong)
 
 SYSTEM
   about            │ Protocol information
@@ -127,6 +145,20 @@ export async function executeCommand(input) {
       type: 'error',
       content: `🔒 Command "${resolvedCommand}" not unlocked at your current level\nCurrent: [${userStatus.level}] ${userStatus.name}`
     };
+  }
+
+  // Development environment validation for restricted commands
+  const developmentCommands = new Set([
+    'setup-pool', 'contract-info', 'test-connection', // Admin commands
+    'debug', 'logs', 'export', 'ai', 'cache', 'health', 'performance', // Diagnostic commands
+    'levelup' // System development command
+  ]);
+  
+  if (developmentCommands.has(resolvedCommand)) {
+    const devEnvCheck = requireDevelopmentEnvironment(resolvedCommand);
+    if (devEnvCheck) {
+      return devEnvCheck;
+    }
   }
 
   // Token gating for restricted commands
