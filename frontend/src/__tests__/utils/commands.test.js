@@ -4,11 +4,26 @@ import { mockWalletState, userProgress } from '../../utils/userState'
 
 // Mock del logger para evitar logs en tests
 vi.mock('../../utils/logger', () => ({
+  devLogger: {
+    command: vi.fn(),
+    network: vi.fn(),
+    performance: vi.fn(),
+    error: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    debug: vi.fn(),
+    exportForAI: vi.fn(() => ({}))
+  },
   commandLogger: {
     info: vi.fn(),
     warn: vi.fn(),
     error: vi.fn(),
     debug: vi.fn()
+  },
+  performanceLogger: {
+    mark: vi.fn(),
+    measure: vi.fn(),
+    track: vi.fn()
   }
 }));
 

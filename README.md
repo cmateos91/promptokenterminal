@@ -450,7 +450,24 @@ Agradecimientos especiales a todos los contribuidores que han ayudado a hacer es
 | 🌐 [**Live Demo**](https://your-deployment-url.vercel.app) | Prueba la aplicación ahora |
 | 📱 [**Mobile Guide**](MOBILE-OPTIMIZATION.md) | Guía completa de optimización móvil |
 | 🔧 [**GitHub Issues**](https://github.com/tu-usuario/solana-staking-dapp/issues) | Reportar bugs o sugerir features |
-| 📚 [**Documentation**](https://github.com/tu-usuario/solana-staking-dapp/wiki) | Documentación completa |
+| 📚 [**Technical Documentation**](docs/) | Documentación técnica completa |
+
+## 📖 **Documentation**
+
+### **Technical Documentation**
+| Document | Description |
+|----------|-------------|
+| 🔧 [**API Reference**](docs/API.md) | Complete API documentation and integration guide |
+| 🏗️ [**Architecture Guide**](docs/ARCHITECTURE.md) | System architecture and design patterns |
+| 🚀 [**Deployment Guide**](docs/DEPLOYMENT-GUIDE.md) | Comprehensive deployment and maintenance guide |
+
+### **Testing Documentation**
+- **E2E Tests**: Comprehensive end-to-end testing with Playwright
+  - Wallet integration tests
+  - Mobile-specific functionality tests
+  - Cross-browser compatibility tests
+- **Unit Tests**: Full coverage with Vitest and Testing Library
+- **Performance Tests**: Lighthouse audits and Core Web Vitals monitoring
 
 ---
 

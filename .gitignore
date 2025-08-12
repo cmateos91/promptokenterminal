@@ -1,57 +1,90 @@
-# Environment variables
-.env
-.env.local
-.env.production
-.env.development
+# 🚫 GITIGNORE OPTIMIZADO - Solo lo esencial
 
-# Dependencies
-node_modules
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+# 📦 Dependencies
+node_modules/
+**/node_modules/
 
-# GitHub Actions completamente deshabilitado
-.github/workflows/
+# 🔒 Environment variables  
+.env*
+!.env.example
 
-# Vercel (solo para deployment manual)
-.vercel
+# 🏗️ Build outputs
+dist/
+build/
+out/
+**/dist/
+frontend/dist/
 
-# GitHub Actions (deshabilitado para deployment manual)
-# .github/workflows/deploy.yml esta deshabilitado
+# 🧪 Testing artifacts (estos son los problemáticos)
+test-results/
+playwright-report/
+coverage/
+.nyc_output/
+test-failed-*.png
+*.spec.js-snapshots/
+**/test-results/
+**/playwright-report/
+**/coverage/
+**/*.png
+**/*.webm
+**/*.mp4
+junit.xml
+.last-run.json
 
-# IDE and OS
+# 📊 Logs y debug (evitar spam de logs)
+*.log
+logs/
+debug*.json
+ai-analysis-*.md
+contract-ai-debug-*.md
+error-*.log
+
+# 🔧 IDE y OS
 .DS_Store
-.vscode
+Thumbs.db
+.vscode/
+.idea/
 *.swp
 *.swo
 *~
 
-# Testing
-coverage
-.nyc_output
-*.log
+# ⚡ Deployment
+.vercel/
 
-# Runtime
-*.pid
-*.seed
-*.pid.lock
+# 🏗️ Blockchain development
+.anchor/
+target/
+test-ledger/
+**/*.rs.bk
 
-# Temporary files
-.tmp
+# 📋 Temporary
+.tmp/
 *.tmp
+*.temp
+.cache/
 
-# Git
-.git
+# 📱 Mobile testing media
+screenshots/
+videos/
+*.gif
+*.jpeg
+*.jpg
 
-# Package managers
+# 🔄 Package managers
 package-lock.json
 yarn.lock
 pnpm-lock.yaml
 
-# Logs
-*.sh
+# 🚫 Scripts de desarrollo (mantener solo en local)
+deploy-*.sh
+debug-*.sh
+cleanup-*.sh
+validate-*.sh
+test-*.sh
+!setup.sh
 
-# Anchor (for smart contracts)
-.anchor
-target/
-Anchor.toml
+# 📚 Drafts y notas
+DRAFT-*.md
+TODO-*.md
+NOTES-*.md
+*.draft

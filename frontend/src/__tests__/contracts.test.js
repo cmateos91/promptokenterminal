@@ -4,12 +4,12 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { stakingCommands } from '../commands/staking';
-import { mockWalletState, userProgress } from '../userState';
-import { devLogger } from '../logger';
+import { stakingCommands } from '../utils/commands/staking';
+import { mockWalletState, userProgress } from '../utils/userState';
+import { devLogger } from '../utils/logger';
 
 // Mock the contract service
-vi.mock('../../services/stakingContract', () => ({
+vi.mock('../services/stakingContract', () => ({
   stakingService: {
     getUserStakeInfo: vi.fn(),
     stakeTokens: vi.fn(),
