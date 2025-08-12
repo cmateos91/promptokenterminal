@@ -7,14 +7,9 @@ import { mockWalletState } from '../userState';
 import { validateTransactionAmount } from '../security';
 import { devLogger } from '../logger';
 
-// 📦 Import contract service (will be available when contracts are deployed)
-let stakingService = null;
-try {
-  // Dynamic import to avoid errors if service isn't ready
-  stakingService = require('../../services/stakingContract').stakingService;
-} catch (error) {
-  devLogger.error('stakingCommands', error, { context: 'contract service import' });
-}
+// 📦 Import real contract service
+import { realStakingService } from '../../services/stakingContractReal';
+const stakingService = realStakingService;
 
 export const stakingCommands = {
   status: async () => {

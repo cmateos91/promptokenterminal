@@ -5,6 +5,7 @@ import { funCommands } from './fun';
 import { systemCommands } from './system';
 import { easterEggCommands } from './easterEggs';
 import { diagnosticCommands } from './diagnostics';
+import { adminCommands } from './admin';
 import { userProgress, checkLevelUp, getUserStatus } from '../userState';
 import { hasRequiredBalance } from '../tokenGate';
 import { MIN_TOKEN_BALANCE, TOKEN_MINT } from '../config';
@@ -17,7 +18,8 @@ const commands = {
   ...funCommands,
   ...systemCommands,
   ...easterEggCommands,
-  ...diagnosticCommands
+  ...diagnosticCommands,
+  ...adminCommands
 };
 
 const aliases = {
@@ -86,6 +88,11 @@ SYSTEM
 
 DEVELOPMENT
   levelup <0-4>    │ Jump to specific access level (dev only)
+
+ADMIN (TESTING)
+  setup-pool       │ Initialize new staking pool (devnet)
+  contract-info    │ Display deployed contract information
+  test-connection  │ Test connection to deployed contract
 
 HIDDEN
   ??????           │ ??????

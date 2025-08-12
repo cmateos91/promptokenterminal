@@ -20,7 +20,7 @@ export const userProgress = {
   commandCount: 0,
   secretsFound: 0,
   achievements: [],
-  unlockedCommands: new Set(['help', 'about', 'version', 'banner', 'clear', 'time', 'ping', 'price', 'slot', 'flip', 'dice', 'connect', 'levelup', 'reset', 'logs', 'debug', 'health', 'performance', 'cache', 'export', 'ai']),
+  unlockedCommands: new Set(['help', 'about', 'version', 'banner', 'clear', 'time', 'ping', 'price', 'slot', 'flip', 'dice', 'connect', 'levelup', 'reset', 'logs', 'debug', 'health', 'performance', 'cache', 'export', 'ai', 'contract-info', 'test-connection', 'setup-pool']),
   secretsFoundSet: new Set()
 };
 
@@ -63,6 +63,9 @@ export function checkLevelUp(commandName) {
     userProgress.unlockedCommands.add('hack');
     userProgress.unlockedCommands.add('override');
     userProgress.unlockedCommands.add('decrypt');
+    userProgress.unlockedCommands.add('contract-info');
+    userProgress.unlockedCommands.add('test-connection');
+    userProgress.unlockedCommands.add('setup-pool');
   }
 
   return userProgress.level > oldLevel;

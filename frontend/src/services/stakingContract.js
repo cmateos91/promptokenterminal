@@ -10,7 +10,7 @@ import { RPC_URL } from '../utils/config';
 
 // 🎯 Program IDs (actualizables por environment)
 export const STAKING_PROGRAM_ID = new PublicKey(
-  import.meta.env.VITE_STAKING_PROGRAM_ID || '7N4UDuARwRzAhU7hEjkdJcwxVoKUGQ7FzRBuqWJyqmh3'
+  import.meta.env.VITE_STAKING_PROGRAM_ID || 'Cm5PWAvAHWL4yh8UWnLGs6UYus6ur4PigEUYS2GuXt5P'
 );
 
 export const PROMPT_TOKEN_MINT = new PublicKey(

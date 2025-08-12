@@ -19,7 +19,7 @@ export const systemCommands = {
     userProgress.commandCount = 0;
     userProgress.secretsFound = 0;
     userProgress.achievements = [];
-    userProgress.unlockedCommands = new Set(['help', 'about', 'version', 'banner', 'clear', 'time', 'ping', 'price', 'slot', 'flip', 'dice', 'connect']);
+    userProgress.unlockedCommands = new Set(['help', 'about', 'version', 'banner', 'clear', 'time', 'ping', 'price', 'slot', 'flip', 'dice', 'connect', 'levelup', 'reset', 'logs', 'debug', 'health', 'performance', 'cache', 'export', 'ai', 'contract-info', 'test-connection', 'setup-pool']);
     userProgress.secretsFoundSet = new Set();
 
     return { type: 'clear', content: 'SYSTEM RESET COMPLETE' };
@@ -97,6 +97,9 @@ export const systemCommands = {
       userProgress.unlockedCommands.add('hack');
       userProgress.unlockedCommands.add('override');
       userProgress.unlockedCommands.add('decrypt');
+      userProgress.unlockedCommands.add('contract-info');
+      userProgress.unlockedCommands.add('test-connection');
+      userProgress.unlockedCommands.add('setup-pool');
       userProgress.unlockedCommands.add('easter');
       userProgress.unlockedCommands.add('ghost');
       userProgress.unlockedCommands.add('prompt');
