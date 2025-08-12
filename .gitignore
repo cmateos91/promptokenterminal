@@ -87,4 +87,6 @@ test-*.sh
 DRAFT-*.md
 TODO-*.md
 NOTES-*.md
+NYX_SOLUTIONS_QA.md
+NYX_WALKTHROUGH.md
 *.draft

@@ -8,7 +8,7 @@ const dec = (b) => { try { return new TextDecoder().decode(b); } catch { return 
 // Base contents (actual clues)
 const ROUTES_CLEAR = `# routes.map (partial)
 core/doors/omega.key -> [b64x2]
-logs/radius-2159-09.log -> rot? timestamps off
+logs/radius-2159-09.log -> rot? sum invalid time digits
 [SALT: r7-bloom]
 `;
 

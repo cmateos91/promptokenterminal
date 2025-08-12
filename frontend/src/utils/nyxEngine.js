@@ -10,11 +10,13 @@ const COLORS = {
   gray: '#888888',
 };
 
-function glitch(text, intensity = 0.06) {
+function glitch(text, intensity) {
   const chars = '!@#$%^&*()_+[]{}|;:,./<>?~=\\';
+  // Tie intensity to current threat for diegetic feedback
+  const i = typeof intensity === 'number' ? intensity : (0.02 + Math.min(1, state.threat / 100) * 0.08);
   return text
     .split('')
-    .map((ch) => (Math.random() < intensity ? chars[Math.floor(Math.random() * chars.length)] : ch))
+    .map((ch) => (Math.random() < i ? chars[Math.floor(Math.random() * chars.length)] : ch))
     .join('');
 }
 
@@ -42,7 +44,9 @@ const state = {
     impersonated: false,
     cloneSynced: false,
     finalVerified: false,
+    saltVerified: false,
   },
+  evidence: {}, // gameplay evidence gathered, e.g., {'firewall.sig:hexdump': true}
   salTag: null,
 };
 
@@ -174,6 +178,15 @@ async function ending(which) {
     nyx('You are not you. You are a copy, a resonance.');
     sys('Identity confirmed: CLONED INSTANCE');
     content = 'ENDING: SECRET';
+  } else if (which === 'traceback') {
+     nyx('Traceback complete. Session quarantined.');
+     sys('Threat maxed. Rotating puzzle seed and clearing heat.');
+     content = 'ENDING: TRACEBACK';
+     // allow retry with fresh conditions
+     state.puzzleSeed = makeSeed();
+     state.threat = 0;
+     state.quota = 100;
+     state.ended = false;
   }
   const trustLine = state.nyxTrust < 0 ? 'NYX: diverting protocols… [unreliable]' : 'NYX: signing off';
   sys(trustLine);
@@ -185,6 +198,8 @@ function bumpThreat(n = 1) {
   state.threat = Math.min(100, Math.max(0, state.threat + n));
   if (state.threat >= 100) {
     err('RADIUS TRACEBACK DETECTED');
+    // mini bad ending that lets the player retry
+    ending('traceback');
   }
   return state.threat;
 }
@@ -223,6 +238,7 @@ export const nyxEngine = {
   spendQuota,
   isSecretCommand(input) {
     if (!state.player.name) return false;
+    if (!state.flags || !state.flags.saltVerified) return false;
     return input.trim().toLowerCase() === `${state.player.name.toLowerCase()}()`;
   },
 };

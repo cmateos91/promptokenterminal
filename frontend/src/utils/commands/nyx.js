@@ -1,6 +1,6 @@
 import { nyxEngine } from '../nyxEngine';
 import { fsVirtual } from '../fsVirtual';
-import { b64, xorData, bytesToHex, bytesToString, caesar, vigenere, analyzeContent, derive as deriveUtil } from '../puzzles';
+import { b64, xorData, bytesToHex, bytesToString, caesar, vigenere, analyzeContent, derive as deriveUtil, crc16 } from '../puzzles';
 
 // Comandos NYX/PHANTOM para el terminal web
 // Devuelven objetos { type, content } compatibles con el Terminal.jsx
@@ -25,6 +25,9 @@ export const nyxCommands = {
       nyxEngine.intro();
       return okInfo('NYX story initialized. Use set_name <your_name>');
     }
+    if (sub === 'help') {
+      return okGame(`NYX//HELP  ::  diegetic interface\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n  nyx [start|stop|ghost_on|ghost_off|help]\n  set_name <name>\n  strings <path>\n  inject_code <t>\n  ls [path]\n  release_phantom()\n  analyze <file>\n  pipe <a> | <b>\n  fork_process\n  vigenere <key> <file>\n  decrypt <file>\n  whoami\n  grep <re> <path>\n  sync_clone <ch>\n  system_reboot()\n  trace <id|ip>\n  pack <file>\n  hexdump <path>\n  derive <hint>\n  b64 <enc|dec> <file>\n  xor <enc|dec> <file> <key>\n  cat <path>\n  impersonate <h>\n  caesar <n> <file>\n  unpack <file>\n  status\n  reset_puzzle\n  scan_network\n  rollback_system\n\n[exit] nyx stop\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
+    }
     if (sub === 'hint' || sub === 'recap') {
       // Reemit minimal diegetic line for current chapter (no explicit instructions)
       const ch = nyxEngine.state.chapter;
@@ -47,7 +50,51 @@ export const nyxCommands = {
       nyxEngine.stopGhost();
       return okInfo('Ghost mode disabled');
     }
-    return err('Usage: nyx [start|stop|ghost_on|ghost_off]');
+    return err('Usage: nyx [start|stop|help|ghost_on|ghost_off]');
+  },
+
+  // Infer ROT shift from invalid time digits in a log line hh:mm:ss
+  rot_suggest: async (args) => {
+    const path = (args && args[0]);
+    if (!path) return err('rot_suggest: <file>');
+    try {
+      const data = fsVirtual.read(nyxEngine.state.fs, path);
+      const txt = bytesToString(data);
+      const m = txt.match(/\b(\d{2}):(\d{2}):(\d{2})\b/);
+      if (!m) return err('rot_suggest: no time found');
+      const hh = parseInt(m[1], 10), mm = parseInt(m[2], 10), ss = parseInt(m[3], 10);
+      let sum = 0;
+      function addDigits(n){ String(n).split('').forEach(d=>{ sum += parseInt(d,10); }); }
+      if (hh >= 24) addDigits(hh);
+      if (mm >= 60) addDigits(mm);
+      if (ss >= 60) addDigits(ss);
+      const shift = ((sum % 26) + 26) % 26;
+      return okInfo(`rot shift = ${shift}`);
+    } catch {
+      return err('rot_suggest: cannot read');
+    }
+  },
+
+  rot_apply: async (args) => {
+    const path = (args && args[0]);
+    if (!path) return err('rot_apply: <file>');
+    try {
+      // reuse suggestion
+      const data = fsVirtual.read(nyxEngine.state.fs, path);
+      const txt = bytesToString(data);
+      const m = txt.match(/\b(\d{2}):(\d{2}):(\d{2})\b/);
+      if (!m) return err('rot_apply: no time found');
+      const hh = parseInt(m[1], 10), mm = parseInt(m[2], 10), ss = parseInt(m[3], 10);
+      let sum = 0; function addDigits(n){ String(n).split('').forEach(d=>{ sum += parseInt(d,10); }); }
+      if (hh >= 24) addDigits(hh); if (mm >= 60) addDigits(mm); if (ss >= 60) addDigits(ss);
+      const shift = ((sum % 26) + 26) % 26;
+      const out = caesar(txt, -shift);
+      const outName = `tmp/${path.split('/').pop()}.dec`;
+      fsVirtual.write(nyxEngine.state.fs, outName, new TextEncoder().encode(out));
+      return okGame(outName);
+    } catch {
+      return err('rot_apply: cannot read');
+    }
   },
 
   // --- Virtual FS & analysis commands ---
@@ -80,6 +127,10 @@ export const nyxCommands = {
     if (!path) return err('hexdump: path required');
     try {
       const data = fsVirtual.read(nyxEngine.state.fs, path);
+      // record evidence for contextual derives
+      if (path === 'firewall.sig') {
+        nyxEngine.state.evidence['firewall.sig:hexdump'] = true;
+      }
       return okGame(bytesToHex(data));
     } catch (e) {
       nyxEngine.bumpThreat(1);
@@ -147,7 +198,8 @@ export const nyxCommands = {
     try {
       const data = fsVirtual.read(nyxEngine.state.fs, path);
       const res = analyzeContent(data);
-      return okInfo(`type? ${res.hints.join(' ')} | prev:"${res.textPreview}"`);
+      const sum = crc16(data);
+      return okInfo(`type? ${res.hints.join(' ')} | crc:${sum} | prev:"${res.textPreview}"`);
     } catch (e) {
       return err('analyze: cannot read');
     }
@@ -195,6 +247,7 @@ export const nyxCommands = {
         fsVirtual.write(nyxEngine.state.fs, 'routes.map', new TextEncoder().encode(txt));
         nyxEngine.state.flags.firewallDecrypted = true;
         nyxEngine.state.salTag = (txt.match(/SALT:\s*([^\]\n]+)/) || [,''])[1] || null;
+        nyxEngine.state.flags.saltVerified = true;
       }
       return okGame(outName);
     } catch (e) {
@@ -225,7 +278,14 @@ export const nyxCommands = {
 
   derive: async (args) => {
     const hint = (args || []).join(' ');
+    // Gate derives based on gathered evidence
+    if (/period/i.test(hint) && !nyxEngine.state.evidence['firewall.sig:hexdump']) {
+      return err('derive: insufficient context');
+    }
     const val = deriveUtil(hint, { name: nyxEngine.state.player.name, lastBytes: fsVirtual.read(nyxEngine.state.fs, 'firewall.sig'), saltTokens: nyxEngine.state.salTag ? [nyxEngine.state.salTag] : [] });
+    if (/salt/i.test(hint) && val) {
+      nyxEngine.state.flags.saltVerified = true;
+    }
     return okInfo(val || '');
   },
 
@@ -238,7 +298,7 @@ export const nyxCommands = {
       if (node) node.locked = false;
       return okInfo('session adopted');
     }
-    nyxEngine.bumpThreat(5);
+    nyxEngine.bumpThreat(10);
     return err('impersonate: denied');
   },
 
@@ -289,10 +349,11 @@ export const nyxCommands = {
   status: async () => {
     const s = nyxEngine.state;
     const flags = Object.entries(s.flags).filter(([k,v]) => v).map(([k]) => k).join(',') || '-';
-    return okInfo(`threat:${s.threat} quota:${s.quota} flags:${flags}`);
+    return okInfo(`chapter:${s.chapter} threat:${s.threat} quota:${s.quota} flags:${flags}`);
   },
 
   reset_puzzle: async () => {
+    if (!nyxEngine.spendQuota(10)) return err('quota: insufficient');
     nyxEngine.state.puzzleSeed = Math.floor(Math.random()*1e9);
     nyxEngine.state.flags.finalVerified = false;
     nyxEngine.bumpThreat(3);
@@ -313,6 +374,7 @@ export const nyxCommands = {
     nyxEngine.state.chapter = 1; // stays
     nyxEngine.sys('Irregular traffic…');
     nyxEngine.sys('Signature trail at root.');
+    nyxEngine.bumpThreat(5);
     return okGame('scan complete');
   },
 
@@ -375,7 +437,8 @@ export const nyxCommands = {
   },
 
   'rollback_system': async () => {
-    nyxEngine.err('Rollback fallido. Snapshot corrupto.');
+    nyxEngine.err('AUTH MAP MISMATCH :: snapshot corrupted');
+    nyxEngine.bumpThreat(8);
     nyxEngine.state.nyxTrust -= 1;
     return okGame('rollback failed');
   },
@@ -402,9 +465,10 @@ export const nyxCommands = {
     return nyxEngine.ending('release');
   },
 
+  // Identity & process status
   whoami: async () => {
     const s = nyxEngine.state;
-    return okInfo(`identity:${s.player.name || 'unknown'} process:${s.forked ? 'forked' : 'single'}`);
+    return okInfo(`name:${s.player.name || '-'} forked:${s.forked} clone:${s.cloneDefiant?'defiant':'cooperative'} inNyx:${!!s.inNyx}`);
   },
 
   ghost_on: async () => {

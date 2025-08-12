@@ -7,7 +7,6 @@ import { easterEggCommands } from "./easterEggs";
 import { diagnosticCommands, userDiagnosticCommands } from "./diagnostics";
 import { adminCommands } from "./admin";
 import { gameCommands } from "./games";
-import { storyCommands } from "./story";
 import { nyxCommands } from "./nyx";
 import { nyxEngine } from "../nyxEngine";
 import { userProgress, checkLevelUp, getUserStatus } from "../userState";
@@ -46,7 +45,6 @@ const commands = {
   ...diagnostics,
   ...adminCommands,
   ...gameCommands,
-  ...storyCommands,
   ...nyxCommands,
 };
 
@@ -69,7 +67,6 @@ const aliases = {
   roll: "dice",
   game: "play",
   games: "play",
-  adventure: "story",
   // Diagnostic aliases
   diag: "debug",
   healthcheck: "health",
@@ -136,36 +133,8 @@ INFORMATION
   slot             │ Latest network slot
   profile          │ View user progression
 
-HACKING (NYX)
-  nyx [start|ghost_on|ghost_off] │ Initialize story or toggle ghost mode
-  set_name <name>  │ Set player name (enables secret command)
-  strings <path>   │ Extract printable strings
-  inject_code <t>  │ Inject payload into target
-  ls [path]        │ List virtual filesystem
-  release_phantom()│ Final: chaos & digital freedom
-  analyze <file>   │ Lightweight type hints
-  pipe <a> | <b>   │ Pipe basic cmds to grep
-  fork_process     │ Clone your process (the clone may diverge)
-  vigenere <key> <file> │ Vigenere decode
-  decrypt <file>   │ Decrypt a file (e.g., firewall.sig)
-  whoami           │ Identity & process status
-  grep <re> <path> │ Grep lines by regex
-  sync_clone <ch>  │ Exchange with clone
-  system_reboot()  │ Final: order & corporate control
-  trace <id|ip>    │ Trace a target
-  pack <file>      │ Pack with skew header
-  hexdump <path>   │ Show bytes in hex
-  derive <hint>    │ Declarative key derivation
-  b64 <enc|dec> <file> │ Base64 encode/decode
-  xor <enc|dec> <file> <key> │ XOR cipher
-  cat <path>       │ Print file contents
-  impersonate <h>  │ Assume handle (opens routes)
-  caesar <n> <file> │ Caesar/ROT transform
-  unpack <file>    │ Unpack and adjust timer
-  status           │ Threat/quota/flags
-  reset_puzzle     │ Rotate puzzle seed
-  scan_network     │ Scan the network for targets
-  rollback_system  │ Attempt rollback (fake)
+GAMES & STORIES
+  nyx [start|help] │ Begin the NYX interactive narrative.
 
 DIAGNOSTICS
   logs <filter>    │ System logs (wallet|command|errors)
@@ -177,7 +146,6 @@ FUN
   flip             │ Flip a coin
   dice             │ Roll a six-sided die
   play <game>      │ Play mini-games (snake, arkanoid, pong)
-  story            │ Command-story mode (story start | story choose <n>)
 
 SYSTEM
   about            │ Protocol information
@@ -262,7 +230,6 @@ export async function executeCommand(input) {
     'ping',
     'time',
     'whoami',
-    'story',
     'nyx',
     'set_name',
     'scan_network',
