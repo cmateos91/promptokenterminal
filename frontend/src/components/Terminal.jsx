@@ -1,10 +1,15 @@
 import { useTerminal } from '../hooks/useTerminal';
-import { getUserStatus } from '../utils/userState';
+import { getUserStatus, mockWalletState } from '../utils/userState';
 import SystemStats from './SystemStats';
 import { useState, useEffect } from 'react';
 
 export default function Terminal() {
   const [userStatus, setUserStatus] = useState(getUserStatus());
+  const [connectionStatus, setConnectionStatus] = useState({
+    connected: mockWalletState.connected,
+    text: mockWalletState.connected ? 'ONLINE' : 'OFFLINE',
+    color: mockWalletState.connected ? '#00ffff' : '#888888' // cyan for online, gray for offline
+  });
   
   const {
     history,
@@ -21,10 +26,15 @@ export default function Terminal() {
     handleSuggestionClick
   } = useTerminal();
 
-  // Update user status when commands are executed
+  // Update user status and connection status when commands are executed
   useEffect(() => {
     const handleCommand = () => {
       setUserStatus(getUserStatus());
+      setConnectionStatus({
+        connected: mockWalletState.connected,
+        text: mockWalletState.connected ? 'ONLINE' : 'OFFLINE',
+        color: mockWalletState.connected ? '#00ffff' : '#888888'
+      });
     };
     
     window.addEventListener('terminal-command', handleCommand);
@@ -154,8 +164,10 @@ export default function Terminal() {
             [{userStatus.level}] {userStatus.name}
           </div>
           <div className="terminal-status">
-            <span className="status-dot"></span>
-            <span className="status-text">OFFLINE</span>
+            <span className="status-dot" style={{backgroundColor: connectionStatus.color}}></span>
+            <span className="status-text" style={{color: connectionStatus.color}}>
+              {connectionStatus.text}
+            </span>
           </div>
         </div>
       </div>

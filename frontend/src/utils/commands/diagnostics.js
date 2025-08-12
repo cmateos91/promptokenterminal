@@ -23,7 +23,182 @@ const requireDevelopmentEnvironment = (commandName) => {
   return null;
 };
 
+// Safe diagnostic commands for production users
+export const userDiagnosticCommands = {
+  logs: (args) => {
+    const filter = args[0] || "all";
+
+    try {
+      let logs;
+
+      switch (filter.toLowerCase()) {
+        case "wallet":
+          logs = logger.getLogs({ component: "WALLET" }).slice(-10);
+          break;
+        case "command":
+          logs = logger.getLogs({ component: "COMMAND" }).slice(-10);
+          break;
+        case "error":
+          logs = logger
+            .getLogs()
+            .filter((log) => log.level === "ERROR")
+            .slice(-10);
+          break;
+        case "recent":
+          logs = logger
+            .getLogs({
+              since: new Date(Date.now() - 5 * 60 * 1000), // Last 5 minutes
+            })
+            .slice(-15);
+          break;
+        default:
+          logs = logger.getLogs().slice(-10);
+      }
+
+      if (logs.length === 0) {
+        return {
+          type: "result",
+          content: `📋 No logs found for filter: ${filter}`,
+        };
+      }
+
+      // Filter out sensitive information from logs
+      const safeLogs = logs.map(log => ({
+        ...log,
+        message: log.message.replace(/\b[A-Za-z0-9]{32,}\b/g, '[REDACTED]'), // Hide potential addresses/keys
+      }));
+
+      const logDisplay = safeLogs
+        .map((log) => {
+          const time = new Date(log.timestamp).toLocaleTimeString();
+          return `[${time}] ${log.level} ${log.component}: ${log.message}`;
+        })
+        .join("\n");
+
+      return {
+        type: "result",
+        content: `📋 SYSTEM LOGS (${filter.toUpperCase()})\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n${logDisplay}\n\nFilters: all, wallet, command, error, recent`,
+      };
+    } catch (error) {
+      return {
+        type: "error",
+        content: "Error retrieving logs: " + error.message,
+      };
+    }
+  },
+
+  health: async () => {
+    const checks = [];
+
+    // Wallet health (without sensitive info)
+    if (mockWalletState.connected) {
+      checks.push({
+        component: "Wallet",
+        status: "healthy",
+        details: `${mockWalletState.walletType} connected`,
+      });
+    } else {
+      checks.push({
+        component: "Wallet",
+        status: "disconnected",
+        details: "No wallet connected",
+      });
+    }
+
+    // Network health
+    try {
+      const networkInfo = getNetworkInfo();
+      checks.push({
+        component: "Network",
+        status: "healthy",
+        details: `Connected to ${networkInfo.network}`,
+      });
+    } catch (error) {
+      checks.push({
+        component: "Network",
+        status: "unhealthy",
+        details: "Network connection issues",
+      });
+    }
+
+    const healthDisplay = checks
+      .map((check) => {
+        const statusIcon =
+          check.status === "healthy"
+            ? "✅"
+            : check.status === "warning"
+            ? "⚠️"
+            : "❌";
+        return `${statusIcon} ${check.component}: ${check.status}\n   ${check.details}`;
+      })
+      .join("\n\n");
+
+    const overallHealth = checks.every((c) => c.status === "healthy")
+      ? "HEALTHY"
+      : checks.some((c) => c.status === "unhealthy")
+      ? "UNHEALTHY"
+      : "WARNING";
+
+    return {
+      type: "result",
+      content: `🏥 SYSTEM HEALTH CHECK\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\nOverall Status: ${overallHealth}\n\n${healthDisplay}\n\nLast check: ${new Date().toLocaleTimeString()}`,
+    };
+  },
+
+  performance: () => {
+    const stats = {
+      memoryUsage: performance.memory
+        ? {
+            used: Math.round(performance.memory.usedJSHeapSize / 1024 / 1024),
+            total: Math.round(performance.memory.totalJSHeapSize / 1024 / 1024),
+            percentage: Math.round(
+              (performance.memory.usedJSHeapSize /
+                performance.memory.totalJSHeapSize) *
+                100
+            ),
+          }
+        : null,
+      connectionTiming: {
+        navigation: performance.timing
+          ? performance.timing.loadEventEnd - performance.timing.navigationStart
+          : "Not available",
+        domContentLoaded: performance.timing
+          ? performance.timing.domContentLoadedEventEnd -
+            performance.timing.navigationStart
+          : "Not available",
+      },
+    };
+
+    let content =
+      "⚡ PERFORMANCE METRICS\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n";
+
+    if (stats.memoryUsage) {
+      content += `Memory Usage: ${stats.memoryUsage.used}MB / ${stats.memoryUsage.total}MB (${stats.memoryUsage.percentage}%)\n`;
+    }
+
+    content += `Page Load Time: ${stats.connectionTiming.navigation}ms\n`;
+    content += `DOM Ready: ${stats.connectionTiming.domContentLoaded}ms\n`;
+    content += `Commands Executed: ${userProgress.commandCount}\n`;
+    content += `\nSystem performance is being monitored`;
+
+    return {
+      type: "result",
+      content,
+    };
+  },
+
+  cache: () => {
+    return {
+      type: "result",
+      content: `🗄️ CACHE STATUS\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\nCache System: Active\nStatus: Working\n\nUse: cache <status|stats|clear>`,
+    };
+  },
+};
+
+// Development-only commands with sensitive information
 export const diagnosticCommands = {
+  ...userDiagnosticCommands, // Include safe commands
+  
   debug: (args) => {
     // Check development environment first
     const devEnvCheck = requireDevelopmentEnvironment("debug");

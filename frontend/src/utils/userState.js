@@ -20,7 +20,19 @@ export const userProgress = {
   commandCount: 0,
   secretsFound: 0,
   achievements: [],
-  unlockedCommands: new Set(['help', 'about', 'version', 'banner', 'clear', 'time', 'ping', 'price', 'slot', 'flip', 'dice', 'play', 'connect', 'levelup', 'reset', 'logs', 'debug', 'health', 'performance', 'cache', 'export', 'ai', 'contract-info', 'test-connection', 'setup-pool']),
+  unlockedCommands: new Set([
+    'help', 'about', 'version', 'banner', 'clear', 'time', 'ping', 'price', 'slot',
+    'flip', 'dice', 'play', 'story',
+    // NYX web story commands
+    'nyx', 'set_name', 'scan_network', 'decrypt', 'trace', 'fork_process', 'inject_code', 'rollback_system', 'system_reboot()', 'release_phantom()',
+    // NYX FS & puzzle commands
+    'ls','cat','grep','hexdump','strings','pipe',
+    'analyze','b64','xor','caesar','vigenere','derive',
+    'impersonate','sync_clone','pack','unpack','status','reset_puzzle',
+    // existing
+    'connect', 'levelup', 'reset', 'logs', 'debug', 'health', 'performance', 'cache', 'export', 'ai',
+    'contract-info', 'test-connection', 'setup-pool', 'globalvault', 'stakingstats'
+  ]),
   secretsFoundSet: new Set()
 };
 
@@ -42,6 +54,9 @@ export function checkLevelUp(commandName) {
     userProgress.unlockedCommands.add('walletinfo');
     userProgress.unlockedCommands.add('status');
     userProgress.unlockedCommands.add('stake');
+    // Transparency commands should be available to all users
+    userProgress.unlockedCommands.add('globalvault');
+    userProgress.unlockedCommands.add('stakingstats');
   }
 
   if (userProgress.level === 1 && commandName === 'stake' && mockWalletState.stakedAmount > 0) {
@@ -49,6 +64,10 @@ export function checkLevelUp(commandName) {
     userProgress.unlockedCommands.add('unstake');
     userProgress.unlockedCommands.add('claim');
     userProgress.unlockedCommands.add('rewards');
+    userProgress.unlockedCommands.add('staked');
+    // Ensure transparency commands are available
+    userProgress.unlockedCommands.add('globalvault');
+    userProgress.unlockedCommands.add('stakingstats');
   }
 
   if (userProgress.level === 2 && userProgress.commandCount >= 15) {

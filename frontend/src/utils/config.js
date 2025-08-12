@@ -6,7 +6,7 @@ import { PublicKey } from '@solana/web3.js';
 
 // SPL token mint required to access gated commands
 export const TOKEN_MINT = new PublicKey(
-  import.meta.env.VITE_PROMPT_TOKEN_MINT || '5gusfEv5k4jR32Nnj92ftqj8u4deKk8KxCUZudZcnWxF'
+  import.meta.env.VITE_PROMPT_TOKEN_MINT || 'F1W4gQyFkhvLpMJQPWnk49THT7dza8HPepnff5AM6K6D'
 );
 
 // Minimum token balance (whole tokens) required in the user's wallet
@@ -28,4 +28,9 @@ export const STAKING_PROGRAM_ID = new PublicKey(
 // USDC Mint for base token rewards
 export const USDC_MINT = new PublicKey(
   import.meta.env.VITE_USDC_MINT || '4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU'
+);
+
+// Global staking vault where all users' PROMPT tokens are stored
+export const GLOBAL_STAKING_VAULT = new PublicKey(
+  import.meta.env.VITE_GLOBAL_STAKING_VAULT || '11111111111111111111111111111112'
 );

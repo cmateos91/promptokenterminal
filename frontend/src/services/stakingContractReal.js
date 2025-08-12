@@ -18,7 +18,7 @@ import { RPC_URL } from '../utils/config';
 // 🎯 Deployed Program Configuration
 export const STAKING_PROGRAM_ID = new PublicKey('Cm5PWAvAHWL4yh8UWnLGs6UYus6ur4PigEUYS2GuXt5P');
 
-// 📋 Program IDL (Interface Definition)
+// 📋 Simplified Program IDL (Interface Definition)  
 const STAKING_IDL = {
   version: "0.1.0",
   name: "staking",
@@ -155,15 +155,111 @@ export class RealStakingContractService {
    */
   async initializeProgram(wallet) {
     if (!wallet) throw new Error('Wallet required');
+    if (!wallet.publicKey) throw new Error('Wallet not connected properly');
+    
+    // Debug wallet object
+    console.log('Wallet object:', {
+      hasPublicKey: !!wallet.publicKey,
+      publicKeyType: typeof wallet.publicKey,
+      publicKeyToString: wallet.publicKey?.toString(),
+      hasSignTransaction: !!wallet.signTransaction,
+      hasSignAllTransactions: !!wallet.signAllTransactions,
+      walletKeys: Object.keys(wallet)
+    });
+    
+    // Create a more robust wallet adapter for Anchor
+    const walletAdapter = {
+      get publicKey() {
+        return wallet.publicKey;
+      },
+      signTransaction: async (transaction) => {
+        if (!wallet.signTransaction) {
+          throw new Error('Wallet does not support transaction signing');
+        }
+        return await wallet.signTransaction(transaction);
+      },
+      signAllTransactions: async (transactions) => {
+        if (!wallet.signAllTransactions) {
+          throw new Error('Wallet does not support multiple transaction signing');
+        }
+        return await wallet.signAllTransactions(transactions);
+      },
+    };
+    
+    // Validate wallet adapter
+    if (!walletAdapter.publicKey) {
+      throw new Error('Wallet adapter publicKey is null or undefined');
+    }
     
     const provider = new anchor.AnchorProvider(
       this.connection,
-      wallet,
-      { commitment: 'confirmed' }
+      walletAdapter,
+      { 
+        commitment: 'confirmed',
+        preflightCommitment: 'confirmed',
+        skipPreflight: false
+      }
     );
     
-    this.program = new anchor.Program(STAKING_IDL, this.programId, provider);
-    devLogger.command('initializeProgram', 'Anchor program initialized', null);
+    // Debug program creation
+    console.log('Creating Anchor Program with:', {
+      idlName: STAKING_IDL.name,
+      idlVersion: STAKING_IDL.version,
+      programId: this.programId.toString(),
+      programIdType: typeof this.programId,
+      hasProvider: !!provider,
+      providerWallet: provider.wallet?.publicKey?.toString()
+    });
+    
+    // First, verify the program exists and is executable
+    try {
+      const programAccount = await this.connection.getAccountInfo(this.programId);
+      console.log('Program account info:', {
+        exists: !!programAccount,
+        executable: programAccount?.executable,
+        dataLength: programAccount?.data?.length,
+        owner: programAccount?.owner?.toString()
+      });
+      
+      if (!programAccount) {
+        throw new Error('Program not found on blockchain - not deployed');
+      }
+      
+      if (!programAccount.executable) {
+        throw new Error('Program exists but is not executable');
+      }
+      
+    } catch (accountError) {
+      console.error('Program account verification failed:', accountError);
+      throw new Error(`Program verification failed: ${accountError.message}`);
+    }
+
+    // Try to create the program with a minimal approach
+    try {
+      // Create program without IDL first to test basic connectivity
+      this.program = new anchor.Program(STAKING_IDL, this.programId, provider);
+      console.log('Program created successfully');
+      devLogger.command('initializeProgram', 'Anchor program initialized', null);
+    } catch (programError) {
+      console.error('Failed to create Anchor Program:', programError);
+      
+      // If IDL fails, let's try to fetch IDL from the program
+      try {
+        console.log('Attempting to fetch IDL from program...');
+        const fetchedIdl = await anchor.Program.fetchIdl(this.programId, provider);
+        console.log('Fetched IDL:', fetchedIdl ? 'Found' : 'Not found');
+        
+        if (fetchedIdl) {
+          this.program = new anchor.Program(fetchedIdl, this.programId, provider);
+          console.log('Program created with fetched IDL');
+        } else {
+          throw new Error('No IDL found on program account');
+        }
+      } catch (fetchError) {
+        console.error('IDL fetch failed:', fetchError);
+        throw new Error(`Program creation failed: ${programError.message}`);
+      }
+    }
   }
 
   /**
@@ -174,6 +270,53 @@ export class RealStakingContractService {
       [Buffer.from('staking_pool'), stakeMint.toBuffer()],
       this.programId
     )[0];
+  }
+
+  /**
+   * 🏊 Initialize a new staking pool
+   */
+  async initializePool(stakeMint, baseTokenMint, rewardRate, minStakeDuration, userWallet) {
+    try {
+      if (!this.program) await this.initializeProgram(userWallet);
+      
+      const stakingPool = this.getStakingPoolAddress(stakeMint);
+      
+      // Derive vault addresses
+      const [stakeVault] = PublicKey.findProgramAddressSync(
+        [Buffer.from('stake_vault'), stakingPool.toBuffer()],
+        this.programId
+      );
+      
+      const [baseTokenVault] = PublicKey.findProgramAddressSync(
+        [Buffer.from('base_token_vault'), stakingPool.toBuffer()],
+        this.programId
+      );
+
+      const tx = await this.program.methods
+        .initializePool(
+          new anchor.BN(rewardRate),
+          new anchor.BN(minStakeDuration)
+        )
+        .accounts({
+          authority: userWallet.publicKey,
+          stakingPool,
+          stakeMint,
+          baseTokenMint,
+          stakeVault,
+          baseTokenVault,
+          tokenProgram: TOKEN_PROGRAM_ID,
+          systemProgram: anchor.web3.SystemProgram.programId,
+          rent: anchor.web3.SYSVAR_RENT_PUBKEY,
+        })
+        .rpc();
+
+      devLogger.command('initializePool', { signature: tx, poolAddress: stakingPool.toString() }, null);
+      return tx;
+
+    } catch (error) {
+      devLogger.error('initializePool', error);
+      throw error;
+    }
   }
 
   /**
@@ -221,8 +364,11 @@ export class RealStakingContractService {
       const poolAccount = await this.program.account.stakingPool.fetch(stakingPool);
       const stakeVault = poolAccount.stakeVault;
 
+      // Ensure amount is properly converted to BN
+      const amountBN = new anchor.BN(amount.toString());
+      
       const tx = await this.program.methods
-        .stakeTokens(new anchor.BN(amount))
+        .stakeTokens(amountBN)
         .accounts({
           user: userWallet.publicKey,
           stakingPool,

@@ -4,9 +4,12 @@ import { infoCommands } from "./info";
 import { funCommands } from "./fun";
 import { systemCommands } from "./system";
 import { easterEggCommands } from "./easterEggs";
-import { diagnosticCommands } from "./diagnostics";
+import { diagnosticCommands, userDiagnosticCommands } from "./diagnostics";
 import { adminCommands } from "./admin";
 import { gameCommands } from "./games";
+import { storyCommands } from "./story";
+import { nyxCommands } from "./nyx";
+import { nyxEngine } from "../nyxEngine";
 import { userProgress, checkLevelUp, getUserStatus } from "../userState";
 import { hasRequiredBalance } from "../tokenGate";
 import { MIN_TOKEN_BALANCE, TOKEN_MINT } from "../config";
@@ -29,6 +32,10 @@ const requireDevelopmentEnvironment = (commandName) => {
   return null;
 };
 
+// Conditionally add diagnostics based on environment
+const isDevelopment = window.location.hostname === "localhost" && window.location.port === "3000";
+const diagnostics = isDevelopment ? diagnosticCommands : userDiagnosticCommands;
+
 const commands = {
   ...walletCommands,
   ...stakingCommands,
@@ -36,9 +43,11 @@ const commands = {
   ...funCommands,
   ...systemCommands,
   ...easterEggCommands,
-  ...diagnosticCommands,
+  ...diagnostics,
   ...adminCommands,
   ...gameCommands,
+  ...storyCommands,
+  ...nyxCommands,
 };
 
 const aliases = {
@@ -60,10 +69,16 @@ const aliases = {
   roll: "dice",
   game: "play",
   games: "play",
+  adventure: "story",
   // Diagnostic aliases
   diag: "debug",
   healthcheck: "health",
   perf: "performance",
+  // Staking aliases
+  gvault: "globalvault",
+  vault: "globalvault",
+  stats: "stakingstats",
+  tvl: "stakingstats",
   // Development aliases
   lvl: "levelup",
   maxlevel: "levelup",
@@ -75,6 +90,16 @@ const aliases = {
 };
 
 commands.help = () => {
+  // Context-aware help: if inside NYX mode, show story-styled help only
+  try {
+    if (nyxEngine && nyxEngine.state && nyxEngine.state.inNyx) {
+      return {
+        type: 'game',
+        content: `NYX//HELP  ::  diegetic interface\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n  nyx [start|stop|ghost_on|ghost_off]\n  set_name <name>\n  strings <path>\n  inject_code <t>\n  ls [path]\n  release_phantom()\n  analyze <file>\n  pipe <a> | <b>\n  fork_process\n  vigenere <key> <file>\n  decrypt <file>\n  whoami\n  grep <re> <path>\n  sync_clone <ch>\n  system_reboot()\n  trace <id|ip>\n  pack <file>\n  hexdump <path>\n  derive <hint>\n  b64 <enc|dec> <file>\n  xor <enc|dec> <file> <key>\n  cat <path>\n  impersonate <h>\n  caesar <n> <file>\n  unpack <file>\n  status\n  reset_puzzle\n  scan_network\n  rollback_system\n\n[exit] nyx stop\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`,
+      };
+    }
+  } catch (_) {}
+
   const aliasList = Object.keys(aliases)
     .filter(
       (a) => !["???", "👻", "debug", "lvl", "maxlevel", "unlock"].includes(a)
@@ -96,6 +121,11 @@ STAKING OPERATIONS
   stake <amount>   │ Stake PROMPT tokens
   unstake <amount> │ Withdraw staked tokens
   claim            │ Claim pending rewards
+  staked           │ View your staked tokens
+
+TRANSPARENCY & STATS
+  globalvault [details] │ View global staking vault (all users)
+  stakingstats     │ Protocol statistics and TVL
 
 INFORMATION
   status           │ Current staking status
@@ -106,19 +136,48 @@ INFORMATION
   slot             │ Latest network slot
   profile          │ View user progression
 
+HACKING (NYX)
+  nyx [start|ghost_on|ghost_off] │ Initialize story or toggle ghost mode
+  set_name <name>  │ Set player name (enables secret command)
+  strings <path>   │ Extract printable strings
+  inject_code <t>  │ Inject payload into target
+  ls [path]        │ List virtual filesystem
+  release_phantom()│ Final: chaos & digital freedom
+  analyze <file>   │ Lightweight type hints
+  pipe <a> | <b>   │ Pipe basic cmds to grep
+  fork_process     │ Clone your process (the clone may diverge)
+  vigenere <key> <file> │ Vigenere decode
+  decrypt <file>   │ Decrypt a file (e.g., firewall.sig)
+  whoami           │ Identity & process status
+  grep <re> <path> │ Grep lines by regex
+  sync_clone <ch>  │ Exchange with clone
+  system_reboot()  │ Final: order & corporate control
+  trace <id|ip>    │ Trace a target
+  pack <file>      │ Pack with skew header
+  hexdump <path>   │ Show bytes in hex
+  derive <hint>    │ Declarative key derivation
+  b64 <enc|dec> <file> │ Base64 encode/decode
+  xor <enc|dec> <file> <key> │ XOR cipher
+  cat <path>       │ Print file contents
+  impersonate <h>  │ Assume handle (opens routes)
+  caesar <n> <file> │ Caesar/ROT transform
+  unpack <file>    │ Unpack and adjust timer
+  status           │ Threat/quota/flags
+  reset_puzzle     │ Rotate puzzle seed
+  scan_network     │ Scan the network for targets
+  rollback_system  │ Attempt rollback (fake)
+
 DIAGNOSTICS
-  logs <filter>    │ System logs (wallet|rpc|command|errors)
-  debug <component>│ Debug info (system|wallet|user|network)
+  logs <filter>    │ System logs (wallet|command|errors)
   health           │ System health check
   performance      │ Performance metrics
   cache <action>   │ Cache management (status|stats|clear)
-  export <type>    │ Export data (logs|debug)
-  ai <action>      │ AI development helper (status|export|logs|debug)
 
 FUN
   flip             │ Flip a coin
   dice             │ Roll a six-sided die
   play <game>      │ Play mini-games (snake, arkanoid, pong)
+  story            │ Command-story mode (story start | story choose <n>)
 
 SYSTEM
   about            │ Protocol information
@@ -129,6 +188,9 @@ SYSTEM
 
 DEVELOPMENT
   levelup <0-4>    │ Jump to specific access level (dev only)
+  debug <component>│ Debug info (system|wallet|user|network)
+  export <type>    │ Export data (logs|debug)
+  ai <action>      │ AI development helper (status|export|logs|debug)
 
 ADMIN (TESTING)
   setup-pool       │ Initialize new staking pool (devnet)
@@ -149,8 +211,15 @@ export async function executeCommand(input) {
 
   // console.log('🎮 Executing command:', input);
 
-  const [command, ...args] = input.toLowerCase().split(" ");
-  const resolvedCommand = aliases[command] || command;
+  const [command, ...args] = input.split(" ");
+  const resolvedCommand = aliases[command.toLowerCase()] || command.toLowerCase();
+
+  // Secret command: player's name as function e.g. "carlos()"
+  try {
+    if (nyxEngine && nyxEngine.isSecretCommand && nyxEngine.isSecretCommand(input)) {
+      return await nyxEngine.ending('secret');
+    }
+  } catch (_) {}
 
   // Check if command exists
   if (!commands[resolvedCommand]) {
@@ -161,8 +230,66 @@ export async function executeCommand(input) {
     };
   }
 
+  // If NYX mode is active, only allow NYX-related commands (plus help/clear)
+  try {
+    const nyxMode = nyxEngine && nyxEngine.state && nyxEngine.state.inNyx;
+    if (nyxMode) {
+      const nyxAllowed = new Set([
+        'help','clear',
+        'nyx','set_name','scan_network','decrypt','trace','fork_process','inject_code','rollback_system',
+        'system_reboot()','release_phantom()','whoami',
+        'ls','cat','grep','hexdump','strings','pipe','analyze','b64','xor','caesar','vigenere','derive',
+        'impersonate','sync_clone','pack','unpack','status','reset_puzzle',
+      ]);
+      if (!nyxAllowed.has(resolvedCommand)) {
+        return {
+          type: 'error',
+          content: `NYX mode is active. Only NYX commands are allowed.\nType 'nyx stop' to exit NYX mode.`,
+        };
+      }
+    }
+  } catch (_) {}
+
+  // Unrestricted commands (bypass unlock + token gate)
+  const unrestricted = new Set([
+    'help',
+    'connect',
+    'disconnect',
+    'clear',
+    'banner',
+    'version',
+    'about',
+    'ping',
+    'time',
+    'whoami',
+    'story',
+    'nyx',
+    'set_name',
+    'scan_network',
+    'decrypt',
+    'trace',
+    'fork_process',
+    'inject_code',
+    'rollback_system',
+    'system_reboot()',
+    'release_phantom()',
+    // NYX FS & puzzles
+    'ls','cat','grep','hexdump','strings','pipe',
+    'analyze','b64','xor','caesar','vigenere','derive',
+    'impersonate','sync_clone','pack','unpack','status','reset_puzzle',
+    // Safe diagnostic commands available to all users
+    'logs',
+    'health',
+    'performance',
+    'cache',
+    // Development-only commands
+    'debug',
+    'export',
+    'ai',
+  ]);
+
   // Check if user has access to this command
-  if (!userProgress.unlockedCommands.has(resolvedCommand)) {
+  if (!userProgress.unlockedCommands.has(resolvedCommand) && !unrestricted.has(resolvedCommand)) {
     // console.warn('Command access denied - not unlocked:', resolvedCommand);
     return {
       type: "error",
@@ -192,26 +319,7 @@ export async function executeCommand(input) {
     }
   }
 
-  // Token gating for restricted commands
-  const unrestricted = new Set([
-    "help",
-    "connect",
-    "disconnect",
-    "clear",
-    "banner",
-    "version",
-    "about",
-    "ping",
-    "time",
-    "whoami",
-    "logs",
-    "debug",
-    "health",
-    "performance",
-    "cache",
-    "export",
-    "ai",
-  ]);
+  // Token gating for restricted commands - safe diagnostics are unrestricted
 
   if (!unrestricted.has(resolvedCommand)) {
     try {
@@ -267,6 +375,20 @@ export async function executeCommand(input) {
 
 export function getCommandSuggestions(input) {
   const allCommands = [...Object.keys(commands), ...Object.keys(aliases)];
+  // Context-aware suggestions: restrict to NYX commands in NYX mode
+  try {
+    if (nyxEngine && nyxEngine.state && nyxEngine.state.inNyx) {
+      const nyxAllowed = new Set([
+        'nyx','set_name','scan_network','decrypt','trace','fork_process','inject_code','rollback_system',
+        'system_reboot()','release_phantom()','whoami',
+        'ls','cat','grep','hexdump','strings','pipe','analyze','b64','xor','caesar','vigenere','derive',
+        'impersonate','sync_clone','pack','unpack','status','reset_puzzle',
+        'help','clear',
+      ]);
+      const nyxOnly = allCommands.filter((cmd) => nyxAllowed.has(aliases[cmd] || cmd));
+      return nyxOnly.filter((cmd) => cmd.startsWith(input.toLowerCase()));
+    }
+  } catch (_) {}
   const hiddenCommands = new Set([
     "easter",
     "matrix",

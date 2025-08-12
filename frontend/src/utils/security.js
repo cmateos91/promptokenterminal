@@ -23,25 +23,25 @@ export class InputValidator {
     const num = parseFloat(input);
     
     if (isNaN(num) || !isFinite(num)) {
-      return { valid: false, error: 'Número inválido' };
+      return { valid: false, error: 'Invalid number' };
     }
 
     if (num < min) {
-      return { valid: false, error: `Mínimo permitido: ${min}` };
+      return { valid: false, error: `Minimum allowed: ${min}` };
     }
 
     if (num > max) {
-      return { valid: false, error: `Máximo permitido: ${max}` };
+      return { valid: false, error: `Maximum allowed: ${max}` };
     }
 
     if (!allowDecimals && num !== Math.floor(num)) {
-      return { valid: false, error: 'No se permiten decimales' };
+      return { valid: false, error: 'Decimals are not allowed' };
     }
 
     if (allowDecimals && maxDecimals > 0) {
       const decimals = input.toString().split('.')[1];
       if (decimals && decimals.length > maxDecimals) {
-        return { valid: false, error: `Máximo ${maxDecimals} decimales` };
+        return { valid: false, error: `Maximum ${maxDecimals} decimals` };
       }
     }
 
@@ -53,20 +53,20 @@ export class InputValidator {
       new PublicKey(address);
       return { valid: true, address };
     } catch (error) {
-      return { valid: false, error: 'Dirección de Solana inválida' };
+      return { valid: false, error: 'Invalid Solana address' };
     }
   }
 
   static isValidCommand(command) {
-    // Solo permitir caracteres alfanuméricos, guiones y espacios
+    // Allow only alphanumeric characters, dashes, and spaces
     const validPattern = /^[a-zA-Z0-9\s\-_]+$/;
     
     if (!validPattern.test(command)) {
-      return { valid: false, error: 'Comando contiene caracteres inválidos' };
+      return { valid: false, error: 'Command contains invalid characters' };
     }
 
     if (command.length > 100) {
-      return { valid: false, error: 'Comando demasiado largo' };
+      return { valid: false, error: 'Command too long' };
     }
 
     return { valid: true, command: command.trim() };
@@ -124,7 +124,7 @@ export class CommandRateLimiter {
       
       return {
         allowed: false,
-        error: `Límite de comandos alcanzado. Espera ${waitTime}s`,
+        error: `Command limit reached. Wait ${waitTime}s`,
         resetIn: waitTime
       };
     }
@@ -159,7 +159,7 @@ export class CommandRateLimiter {
 export class WalletSecurityChecker {
   static validateWalletProvider(provider) {
     if (!provider) {
-      return { valid: false, error: 'Proveedor de wallet no encontrado' };
+      return { valid: false, error: 'Wallet provider not found' };
     }
 
     // Check if provider has required methods
@@ -168,7 +168,7 @@ export class WalletSecurityChecker {
       if (typeof provider[method] !== 'function') {
         return { 
           valid: false, 
-          error: `Proveedor inválido: falta método ${method}` 
+          error: `Invalid provider: missing method ${method}` 
         };
       }
     }
@@ -247,7 +247,7 @@ export function validateTransactionAmount(amount, balance, decimals = 9) {
   if (validation.value < 0.001) {
     return {
       valid: false,
-      error: 'Cantidad muy pequeña para cubrir fees de red'
+      error: 'Amount too small to cover network fees'
     };
   }
 

@@ -9,6 +9,8 @@
     "build": "vite build",
     "vercel-build": "npm run build",
     "preview": "vite preview --host",
+    "game:nyx": "node ../cli/cyberpunk_nyx.js",
+    "game:nyx:ghost": "node ../cli/cyberpunk_nyx.js --ghost",
     "setup": "npm install",
     "test": "vitest",
     "test:ui": "vitest --ui",

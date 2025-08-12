@@ -2,6 +2,7 @@ import { LAMPORTS_PER_SOL, PublicKey } from '@solana/web3.js';
 import { connection, TOKEN_PROGRAM_ID, retryWithFallback, getNetworkInfo } from '../solana';
 import { mockWalletState, userProgress } from '../userState';
 import { getTokenMetadata } from '../tokenMetadata';
+import { TOKEN_MINT } from '../config';
 
 export const walletCommands = {
   connect: async (args) => {
@@ -158,7 +159,7 @@ export const walletCommands = {
     };
   },
 
-  balance: async () => {
+  balance: async (args) => {
     if (!mockWalletState.connected) {
       return { type: 'error', content: '🔒 Connect wallet first using: connect' };
     }
@@ -166,6 +167,8 @@ export const walletCommands = {
     if (!mockWalletState.provider || !mockWalletState.provider.publicKey) {
       return { type: 'error', content: 'Wallet provider not available. Try reconnecting.' };
     }
+
+    const forceRefresh = args && args[0] === 'refresh';
 
     try {
       // Actualizar balance en tiempo real con fallback
@@ -175,11 +178,12 @@ export const walletCommands = {
       });
       mockWalletState.balance = realBalance;
 
-      // Obtener tokens SPL con fallback
+      // Obtener tokens SPL con fallback (force fresh data)
       const tokens = await retryWithFallback(async (conn) => {
         const tokenAccounts = await conn.getParsedTokenAccountsByOwner(
           mockWalletState.provider.publicKey,
-          { programId: TOKEN_PROGRAM_ID }
+          { programId: TOKEN_PROGRAM_ID },
+          forceRefresh ? 'finalized' : 'confirmed' // Use finalized for fresh data
         );
         
         return tokenAccounts.value
@@ -196,27 +200,38 @@ export const walletCommands = {
       let tokenLines = 'No SPL tokens';
       if (tokens.length > 0) {
         try {
-          const tokensToShow = tokens.slice(0, 5);
-          const tokenMetadataPromises = tokensToShow.map(async (token) => {
+          // Separar el token PROMPT del resto
+          const promptTokenMint = TOKEN_MINT.toString();
+          const promptToken = tokens.find(t => t.mint === promptTokenMint);
+          const otherTokens = tokens.filter(t => t.mint !== promptTokenMint);
+          
+          // Ordenar: PROMPT primero, luego otros tokens
+          const orderedTokens = [];
+          if (promptToken) {
+            orderedTokens.push(promptToken);
+          }
+          orderedTokens.push(...otherTokens.slice(0, promptToken ? 4 : 5));
+          
+          const tokenMetadataPromises = orderedTokens.map(async (token) => {
             try {
               const metadata = await getTokenMetadata(new PublicKey(token.mint));
               return `${token.amount.toLocaleString()} ${metadata.symbol} (${metadata.name})`;
             } catch (error) {
-              return `${token.mint.slice(0, 8)}...: ${token.amount.toLocaleString()}`;
+              return `${token.amount.toLocaleString()} UNK (Token ${token.mint.slice(0, 8)}...)`;
             }
           });
           
           const tokenDisplays = await Promise.all(tokenMetadataPromises);
           tokenLines = tokenDisplays.join('\n');
           
-          if (tokens.length > 5) {
-            tokenLines += `\n... and ${tokens.length - 5} more tokens`;
+          if (tokens.length > orderedTokens.length) {
+            tokenLines += `\n... and ${tokens.length - orderedTokens.length} more tokens`;
           }
         } catch (error) {
           console.warn('Error fetching token metadata for balance:', error);
           tokenLines = tokens
             .slice(0, 5)
-            .map(t => `${t.mint.slice(0, 8)}...: ${t.amount.toLocaleString()}`)
+            .map(t => `${t.amount.toLocaleString()} UNK (Token ${t.mint.slice(0, 8)}...)`)
             .join('\n');
         }
       }
@@ -228,7 +243,7 @@ export const walletCommands = {
       
       return {
         type: 'result',
-        content: `WALLET BALANCES\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\nSOL:     ${mockWalletState.balance.toFixed(4)}\n${tokenLines}\n\n${dataSource}`
+        content: `WALLET BALANCES${forceRefresh ? ' (REFRESHED)' : ''}\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\nSOL:     ${mockWalletState.balance.toFixed(4)}\n${tokenLines}\n\n${dataSource}${forceRefresh ? '' : '\n\n💡 Use "balance refresh" for latest data'}`
       };
       
     } catch (err) {

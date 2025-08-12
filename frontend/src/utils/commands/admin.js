@@ -66,15 +66,84 @@ setup-pool DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263 EPjFWdd5AufqSSqeM2qN1xzy
 
       const [stakeMintStr, baseMintStr, rewardRateStr, minDurationStr] = args;
 
-      // This would be a real admin function in production
-      const result = {
-        signature: "mock_admin_setup_" + Date.now(),
-        stakeMint: stakeMintStr,
-        baseMint: baseMintStr,
-        rewardRate: rewardRateStr,
-        minDuration: minDurationStr,
-        poolAddress: "Cm5PWAvAHWL4yh8UWnLGs6UYus6ur4PigEUYS2GuXt5P", // Mock pool address
-      };
+      // Real pool setup using the staking contract
+      let result;
+      try {
+        const { PublicKey } = await import('@solana/web3.js');
+        
+        // Validate addresses before creating PublicKeys
+        let stakeMint, baseMint;
+        try {
+          stakeMint = new PublicKey(stakeMintStr);
+        } catch (e) {
+          return {
+            type: "error",
+            content: `❌ Invalid stake token address: ${stakeMintStr}\n\nMust be a valid Base58 Solana address.\nExample: F1W4gQyFkhvLpMJQPWnk49THT7dza8HPepnff5AM6K6D`
+          };
+        }
+        
+        try {
+          baseMint = new PublicKey(baseMintStr);
+        } catch (e) {
+          return {
+            type: "error", 
+            content: `❌ Invalid base token address: ${baseMintStr}\n\nMust be a valid Base58 Solana address.\nExample: 4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU`
+          };
+        }
+        const rewardRate = parseInt(rewardRateStr);
+        const minDuration = parseInt(minDurationStr);
+
+        if (realStakingService && mockWalletState.provider) {
+          try {
+            // Initialize the program with wallet
+            await realStakingService.initializeProgram(mockWalletState.provider);
+            
+            // Get the pool address that will be created
+            const poolAddress = realStakingService.getStakingPoolAddress(stakeMint);
+            
+            // Create the pool (this would call initializePool instruction)
+            const signature = await realStakingService.initializePool(
+              stakeMint,
+              baseMint,
+              rewardRate,
+              minDuration,
+              mockWalletState.provider
+            );
+            
+            result = {
+              signature,
+              stakeMint: stakeMintStr,
+              baseMint: baseMintStr,
+              rewardRate: rewardRateStr,
+              minDuration: minDurationStr,
+              poolAddress: poolAddress.toString(),
+              real: true
+            };
+          } catch (contractError) {
+            console.error('Real contract setup failed:', contractError);
+            // Fallback to mock for now
+            result = {
+              signature: "real_failed_fallback_" + Date.now(),
+              stakeMint: stakeMintStr,
+              baseMint: baseMintStr,
+              rewardRate: rewardRateStr,
+              minDuration: minDurationStr,
+              poolAddress: "Mock_Pool_" + Date.now(),
+              real: false,
+              error: contractError.message
+            };
+          }
+        } else {
+          throw new Error('Staking service or wallet not available');
+        }
+      } catch (error) {
+        devLogger.error('admin:setup-pool', error);
+        result = {
+          signature: "setup_error_" + Date.now(),
+          error: error.message,
+          real: false
+        };
+      }
 
       const duration = performance.now() - startTime;
       devLogger.performance("admin:setup-pool", duration);

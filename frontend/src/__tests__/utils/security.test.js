@@ -13,7 +13,7 @@ describe('Security Utilities', () => {
       it('should reject negative numbers by default', () => {
         const result = InputValidator.isValidNumber('-50')
         expect(result.valid).toBe(false)
-        expect(result.error).toContain('Mínimo permitido')
+        expect(result.error).toContain('Minimum allowed')
       })
 
       it('should validate numbers within range', () => {
@@ -25,7 +25,7 @@ describe('Security Utilities', () => {
       it('should reject numbers outside range', () => {
         const result = InputValidator.isValidNumber('150', { min: 10, max: 100 })
         expect(result.valid).toBe(false)
-        expect(result.error).toContain('Máximo permitido')
+        expect(result.error).toContain('Maximum allowed')
       })
 
       it('should handle decimal validation', () => {
@@ -34,19 +34,19 @@ describe('Security Utilities', () => {
           maxDecimals: 6 
         })
         expect(result.valid).toBe(false)
-        expect(result.error).toContain('decimales')
+        expect(result.error).toContain('decimals')
       })
 
       it('should reject decimals when not allowed', () => {
         const result = InputValidator.isValidNumber('10.5', { allowDecimals: false })
         expect(result.valid).toBe(false)
-        expect(result.error).toContain('No se permiten decimales')
+        expect(result.error).toContain('Decimals are not allowed')
       })
 
       it('should reject invalid strings', () => {
         const result = InputValidator.isValidNumber('abc')
         expect(result.valid).toBe(false)
-        expect(result.error).toContain('inválido')
+        expect(result.error).toContain('Invalid')
       })
     })
 
@@ -60,7 +60,7 @@ describe('Security Utilities', () => {
       it('should reject invalid addresses', () => {
         const result = InputValidator.isValidSolanaAddress('invalid-address')
         expect(result.valid).toBe(false)
-        expect(result.error).toContain('inválida')
+        expect(result.error).toContain('Invalid')
       })
     })
 
@@ -73,14 +73,14 @@ describe('Security Utilities', () => {
       it('should reject commands with dangerous characters', () => {
         const result = InputValidator.isValidCommand('stake <script>')
         expect(result.valid).toBe(false)
-        expect(result.error).toContain('caracteres inválidos')
+        expect(result.error).toContain('invalid characters')
       })
 
       it('should reject very long commands', () => {
         const longCommand = 'a'.repeat(150)
         const result = InputValidator.isValidCommand(longCommand)
         expect(result.valid).toBe(false)
-        expect(result.error).toContain('demasiado largo')
+        expect(result.error).toContain('too long')
       })
     })
 
@@ -126,7 +126,7 @@ describe('Security Utilities', () => {
       
       const result = rateLimiter.isAllowed(0, 'anon')
       expect(result.allowed).toBe(false)
-      expect(result.error).toContain('Límite de comandos')
+      expect(result.error).toContain('Command limit reached')
     })
 
     it('should have different limits for different user levels', () => {
@@ -158,19 +158,19 @@ describe('Security Utilities', () => {
     it('should reject amounts larger than balance', () => {
       const result = validateTransactionAmount('15', 10.0, 9)
       expect(result.valid).toBe(false)
-      expect(result.error).toContain('Máximo permitido')
+      expect(result.error).toContain('Maximum allowed')
     })
 
     it('should reject very small amounts', () => {
       const result = validateTransactionAmount('0.0001', 10.0, 9)
       expect(result.valid).toBe(false)
-      expect(result.error).toContain('muy pequeña')
+      expect(result.error).toContain('too small')
     })
 
     it('should respect decimal limits', () => {
       const result = validateTransactionAmount('1.123456789123', 10.0, 6)
       expect(result.valid).toBe(false)
-      expect(result.error).toContain('decimales')
+      expect(result.error).toContain('decimals')
     })
 
     it('should handle edge cases', () => {
