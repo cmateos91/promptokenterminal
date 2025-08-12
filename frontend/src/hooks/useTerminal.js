@@ -93,8 +93,8 @@ export function useTerminal() {
         clearTimeout(idleTimeoutRef.current);
       }
       
-      // Timeout más largo en móvil para no molestar
-      const timeout = isMobileRef.current ? 60000 : 30000;
+      // Timeout mucho más largo para que no sean molestos
+      const timeout = isMobileRef.current ? 300000 : 180000; // 5 min móvil, 3 min desktop
       
       idleTimeoutRef.current = setTimeout(() => {
         setHistory(prev => [...prev, {
