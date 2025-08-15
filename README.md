@@ -148,6 +148,7 @@ VITE_SOLANA_RPC_URL=https://api.devnet.solana.com
 # Token Configuration
 VITE_PROMPT_TOKEN_MINT=5gusfEv5k4jR32Nnj92ftqj8u4deKk8KxCUZudZcnWxF
 VITE_MINIMUM_TOKEN_BALANCE=500
+VITE_OPENAI_API_KEY=tu_api_key_aqui
 
 # Optional: Custom RPC for better performance
 # VITE_SOLANA_RPC_URL=https://your-private-rpc.com
