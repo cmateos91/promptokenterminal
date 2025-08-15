@@ -3,6 +3,7 @@
 import fsVirtual from './fsVirtual';
 import { makeSeed } from './puzzles';
 import { nyxResponder } from './nyxDialog';
+import { userProgress, mockWalletState, getUserStatus } from './userState';
 
 // COLORS constants commented out as unused
 
@@ -81,7 +82,34 @@ function err(text) {
 // Generate dynamic dialogue using OpenAI
 async function chat(message) {
   try {
-    const reply = await nyxResponder(message);
+    const flagsOn = Object.entries(state.flags)
+      .filter(([_, v]) => !!v)
+      .map(([k]) => k);
+    const ctx = {
+      user: { name: state.player?.name || null },
+      status: getUserStatus(),
+      commandCount: userProgress.commandCount,
+      wallet: { ...mockWalletState },
+      progress: {
+        achievements: Array.isArray(userProgress.achievements) ? userProgress.achievements : [],
+        secretsFound: userProgress.secretsFound,
+        nextRequirement: (getUserStatus()?.nextLevelRequirement) || '-',
+        unlockedCommands: Array.from(userProgress.unlockedCommands || []),
+      },
+      nyx: {
+        chapter: state.chapter,
+        threat: state.threat,
+        forked: state.forked,
+        cloneDefiant: state.cloneDefiant,
+        flagsOn,
+      },
+      meta: {
+        url: typeof window !== 'undefined' ? window.location.href : '-',
+        ts: Date.now(),
+        unlockedCount: userProgress.unlockedCommands?.size || 0,
+      }
+    };
+    const reply = await nyxResponder(message, ctx);
     nyx(reply);
   } catch (_) {
     err('NYX channel unavailable.');

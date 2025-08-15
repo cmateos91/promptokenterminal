@@ -207,7 +207,7 @@ export async function executeCommand(input) {
     if (nyxMode) {
       const nyxAllowed = new Set([
         'help','clear',
-        'nyx','set_name','scan_network','decrypt','trace','fork_process','inject_code','rollback_system',
+        'nyx','nyxchat','set_name','scan_network','decrypt','trace','fork_process','inject_code','rollback_system',
         'system_reboot()','release_phantom()','whoami',
         'ls','cat','grep','hexdump','strings','pipe','analyze','b64','xor','caesar','vigenere','derive',
         'impersonate','sync_clone','pack','unpack','status','reset_puzzle',
@@ -234,6 +234,7 @@ export async function executeCommand(input) {
     'time',
     'whoami',
     'nyx',
+    'nyxchat',
     'set_name',
     'scan_network',
     'decrypt',
@@ -349,7 +350,7 @@ export function getCommandSuggestions(input) {
   try {
     if (nyxEngine && nyxEngine.state && nyxEngine.state.inNyx) {
       const nyxAllowed = new Set([
-        'nyx','set_name','scan_network','decrypt','trace','fork_process','inject_code','rollback_system',
+        'nyx','nyxchat','set_name','scan_network','decrypt','trace','fork_process','inject_code','rollback_system',
         'system_reboot()','release_phantom()','whoami',
         'ls','cat','grep','hexdump','strings','pipe','analyze','b64','xor','caesar','vigenere','derive',
         'impersonate','sync_clone','pack','unpack','status','reset_puzzle',
