@@ -237,9 +237,12 @@ Configurar en Vercel Dashboard → Settings → Environment Variables:
 - `VITE_PROMPT_TOKEN_MINT`
 - `VITE_MINIMUM_TOKEN_BALANCE`
 
-### Auto-deploy
+### Manual Deploy
 
-El proyecto incluye GitHub Actions para auto-deploy en push a `main`.
+Deploy manualmente cuando esté listo:
+```bash
+vercel --prod
+```
 
 ## 🛡️ Seguridad
 

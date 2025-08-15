@@ -1,6 +1,6 @@
-# Deployment Manual a Vercel
+# 🚀 Manual Deployment Guide
 
-Este proyecto ahora usa deployment manual con Vercel CLI en lugar de sincronización automática con GitHub.
+Esta guía cubre el deployment manual del proyecto, separando completamente GitHub de Vercel para control total.
 
 ## Configuración inicial
 
