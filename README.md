@@ -177,15 +177,19 @@ VITE_SOLANA_RPC_URL=https://api.mainnet-beta.solana.com
 - **Performance**: Bundle splitting y lazy loading
 - **Gestures**: Soporte nativo para touch events
 
-### Testing en Móvil
+### Testing Local
 
 ```bash
-# Obtener IP para testing desde móvil
-hostname -I | awk '{print $1}'
+# Testing completo local
+cd frontend
+npm run lint:fix         # Calidad de código
+npm run test:quick       # Tests unitarios
+npm run build           # Verificar build
+npm run preview         # Test de producción
 
+# Testing móvil
+hostname -I | awk '{print $1}'
 # Acceder desde móvil: http://[IP]:3000
-# Probar instalación PWA
-# Testear conexión de wallets móviles
 ```
 
 ## 🧪 Testing
