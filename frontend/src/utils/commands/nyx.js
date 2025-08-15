@@ -26,7 +26,13 @@ export const nyxCommands = {
       return okInfo('NYX story initialized. Use set_name <your_name>');
     }
     if (sub === 'help') {
-      return okGame(`NYX//HELP  ::  diegetic interface\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n  nyx [start|stop|ghost_on|ghost_off|help]\n  set_name <name>\n  strings <path>\n  inject_code <t>\n  ls [path]\n  release_phantom()\n  analyze <file>\n  pipe <a> | <b>\n  fork_process\n  vigenere <key> <file>\n  decrypt <file>\n  whoami\n  grep <re> <path>\n  sync_clone <ch>\n  system_reboot()\n  trace <id|ip>\n  pack <file>\n  hexdump <path>\n  derive <hint>\n  b64 <enc|dec> <file>\n  xor <enc|dec> <file> <key>\n  cat <path>\n  impersonate <h>\n  caesar <n> <file>\n  unpack <file>\n  status\n  reset_puzzle\n  scan_network\n  rollback_system\n\n[exit] nyx stop\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
+      return okGame(`NYX//HELP  ::  diegetic interface\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n  nyx [start|stop|ghost_on|ghost_off|help]\n  nyx chat <text>\n  set_name <name>\n  strings <path>\n  inject_code <t>\n  ls [path]\n  release_phantom()\n  analyze <file>\n  pipe <a> | <b>\n  fork_process\n  vigenere <key> <file>\n  decrypt <file>\n  whoami\n  grep <re> <path>\n  sync_clone <ch>\n  system_reboot()\n  trace <id|ip>\n  pack <file>\n  hexdump <path>\n  derive <hint>\n  b64 <enc|dec> <file>\n  xor <enc|dec> <file> <key>\n  cat <path>\n  impersonate <h>\n  caesar <n> <file>\n  unpack <file>\n  status\n  reset_puzzle\n  scan_network\n  rollback_system\n\n[exit] nyx stop\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
+    }
+    if (sub === 'chat') {
+      const message = args.slice(1).join(' ');
+      if (!message) {return err('Usage: nyx chat <text>');}
+      await nyxEngine.chat(message);
+      return okInfo('');
     }
     if (sub === 'hint' || sub === 'recap') {
       // Reemit minimal diegetic line for current chapter (no explicit instructions)
@@ -50,7 +56,7 @@ export const nyxCommands = {
       nyxEngine.stopGhost();
       return okInfo('Ghost mode disabled');
     }
-    return err('Usage: nyx [start|stop|help|ghost_on|ghost_off]');
+    return err('Usage: nyx [start|stop|help|ghost_on|ghost_off|chat]');
   },
 
   // Infer ROT shift from invalid time digits in a log line hh:mm:ss

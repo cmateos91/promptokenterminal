@@ -92,7 +92,9 @@ commands.help = () => {
     if (nyxEngine && nyxEngine.state && nyxEngine.state.inNyx) {
       return {
         type: 'game',
-        content: `NYX//HELP  ::  diegetic interface\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n  nyx [start|stop|ghost_on|ghost_off]\n  set_name <name>\n  strings <path>\n  inject_code <t>\n  ls [path]\n  release_phantom()\n  analyze <file>\n  pipe <a> | <b>\n  fork_process\n  vigenere <key> <file>\n  decrypt <file>\n  whoami\n  grep <re> <path>\n  sync_clone <ch>\n  system_reboot()\n  trace <id|ip>\n  pack <file>\n  hexdump <path>\n  derive <hint>\n  b64 <enc|dec> <file>\n  xor <enc|dec> <file> <key>\n  cat <path>\n  impersonate <h>\n  caesar <n> <file>\n  unpack <file>\n  status\n  reset_puzzle\n  scan_network\n  rollback_system\n\n[exit] nyx stop\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`,
+        content: `NYX//HELP  ::  diegetic interface\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n  nyx [start|stop|ghost_on|ghost_off]
+  nyx chat <text>\n
+  set_name <name>\n  strings <path>\n  inject_code <t>\n  ls [path]\n  release_phantom()\n  analyze <file>\n  pipe <a> | <b>\n  fork_process\n  vigenere <key> <file>\n  decrypt <file>\n  whoami\n  grep <re> <path>\n  sync_clone <ch>\n  system_reboot()\n  trace <id|ip>\n  pack <file>\n  hexdump <path>\n  derive <hint>\n  b64 <enc|dec> <file>\n  xor <enc|dec> <file> <key>\n  cat <path>\n  impersonate <h>\n  caesar <n> <file>\n  unpack <file>\n  status\n  reset_puzzle\n  scan_network\n  rollback_system\n\n[exit] nyx stop\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`,
       };
     }
   } catch (_) {}
