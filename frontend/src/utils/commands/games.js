@@ -15,7 +15,7 @@ class Game {
 
   render() {
     let output = '┏' + '━'.repeat(this.width) + '┓\n';
-    for (let row of this.canvas) {
+    for (const row of this.canvas) {
       output += '┃' + row.join('') + '┃\n';
     }
     output += '┗' + '━'.repeat(this.width) + '┛';
@@ -71,7 +71,7 @@ class SnakeGame extends Game {
   }
 
   start() {
-    if (this.isActive) return;
+    if (this.isActive) {return;}
     
     this.isActive = true;
     this.initCanvas();
@@ -83,24 +83,24 @@ class SnakeGame extends Game {
     }
     
     this.keyListener = (e) => {
-      if (!this.isActive) return;
+      if (!this.isActive) {return;}
       
       switch(e.key.toLowerCase()) {
         case 'w':
         case 'arrowup':
-          if (this.direction.y === 0) this.direction = { x: 0, y: -1 };
+          if (this.direction.y === 0) {this.direction = { x: 0, y: -1 };}
           break;
         case 's':
         case 'arrowdown':
-          if (this.direction.y === 0) this.direction = { x: 0, y: 1 };
+          if (this.direction.y === 0) {this.direction = { x: 0, y: 1 };}
           break;
         case 'a':
         case 'arrowleft':
-          if (this.direction.x === 0) this.direction = { x: -1, y: 0 };
+          if (this.direction.x === 0) {this.direction = { x: -1, y: 0 };}
           break;
         case 'd':
         case 'arrowright':
-          if (this.direction.x === 0) this.direction = { x: 1, y: 0 };
+          if (this.direction.x === 0) {this.direction = { x: 1, y: 0 };}
           break;
         case 'escape':
           this.stop();
@@ -132,7 +132,7 @@ class SnakeGame extends Game {
   }
 
   update() {
-    if (!this.isActive) return;
+    if (!this.isActive) {return;}
     
     const head = { ...this.snake[0] };
     head.x += this.direction.x;
@@ -240,7 +240,7 @@ class ArkanoidGame extends Game {
   }
 
   start() {
-    if (this.isActive) return;
+    if (this.isActive) {return;}
     
     this.isActive = true;
     this.initCanvas();
@@ -250,16 +250,16 @@ class ArkanoidGame extends Game {
     }
     
     this.keyListener = (e) => {
-      if (!this.isActive) return;
+      if (!this.isActive) {return;}
       
       switch(e.key.toLowerCase()) {
         case 'a':
         case 'arrowleft':
-          if (this.paddle.x > 0) this.paddle.x -= 2;
+          if (this.paddle.x > 0) {this.paddle.x -= 2;}
           break;
         case 'd':
         case 'arrowright':
-          if (this.paddle.x < this.width - this.paddle.width) this.paddle.x += 2;
+          if (this.paddle.x < this.width - this.paddle.width) {this.paddle.x += 2;}
           break;
         case 'escape':
           this.stop();
@@ -282,7 +282,7 @@ class ArkanoidGame extends Game {
   }
 
   update() {
-    if (!this.isActive) return;
+    if (!this.isActive) {return;}
     
     // Move ball
     this.ball.x += this.ball.dx;
@@ -302,11 +302,11 @@ class ArkanoidGame extends Game {
       this.ball.dy = -Math.abs(this.ball.dy);
       // Add angle based on paddle hit position
       const hitPos = (this.ball.x - this.paddle.x) / this.paddle.width;
-      if (hitPos < 0.2) this.ball.dx = -2;
-      else if (hitPos < 0.4) this.ball.dx = -1;
-      else if (hitPos > 0.8) this.ball.dx = 2;
-      else if (hitPos > 0.6) this.ball.dx = 1;
-      else this.ball.dx = 0;
+      if (hitPos < 0.2) {this.ball.dx = -2;}
+      else if (hitPos < 0.4) {this.ball.dx = -1;}
+      else if (hitPos > 0.8) {this.ball.dx = 2;}
+      else if (hitPos > 0.6) {this.ball.dx = 1;}
+      else {this.ball.dx = 0;}
     }
     
     // Ball collision with blocks
@@ -412,7 +412,7 @@ class PongGame extends Game {
   }
 
   start() {
-    if (this.isActive) return;
+    if (this.isActive) {return;}
     
     this.isActive = true;
     this.initCanvas();
@@ -422,16 +422,16 @@ class PongGame extends Game {
     }
     
     this.keyListener = (e) => {
-      if (!this.isActive) return;
+      if (!this.isActive) {return;}
       
       switch(e.key.toLowerCase()) {
         case 'w':
         case 'arrowup':
-          if (this.playerPaddle.y > 0) this.playerPaddle.y--;
+          if (this.playerPaddle.y > 0) {this.playerPaddle.y--;}
           break;
         case 's':
         case 'arrowdown':
-          if (this.playerPaddle.y < this.height - this.playerPaddle.height) this.playerPaddle.y++;
+          if (this.playerPaddle.y < this.height - this.playerPaddle.height) {this.playerPaddle.y++;}
           break;
         case 'escape':
           this.stop();
@@ -454,7 +454,7 @@ class PongGame extends Game {
   }
 
   update() {
-    if (!this.isActive) return;
+    if (!this.isActive) {return;}
     
     // Move ball
     this.ball.x += this.ball.dx;

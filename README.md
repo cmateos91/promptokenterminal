@@ -1,69 +1,48 @@
 # 🚀 PROMPT Staking Terminal
 
-**Terminal retro optimizado para móvil - Staking de tokens $PROMPT con recompensas en cualquier token SPL**
+[![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/yourusername/solana-staking-dapp)
+[![Mobile Optimized](https://img.shields.io/badge/Mobile-Optimized-00ff41?style=flat-square)](#mobile-optimization)
+[![Lighthouse Score](https://img.shields.io/badge/Lighthouse-95%2B-00ff41?style=flat-square)](#performance)
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/tu-usuario/solana-staking-dapp)
-[![Live Demo](https://img.shields.io/badge/Live-Demo-00ff41?style=for-the-badge&logo=vercel)](https://your-deployment-url.vercel.app)
-[![Mobile Optimized](https://img.shields.io/badge/Mobile-Optimized-00ff41?style=for-the-badge&logo=mobile)](https://solana-staking-dapp-9azhsfe6b-carlos-projects-c7e924a9.vercel.app)
+> **Terminal retro mobile-first para staking de tokens $PROMPT en Solana**
 
-## 🎮 **Live Demo**
+Un terminal interactivo inspirado en la estética cyberpunk, completamente optimizado para móvil, que permite hacer staking de tokens $PROMPT con integración real de wallets Solana.
 
-### **🌐 Acceso Directo**
-```
-https://your-deployment-url.vercel.app
-```
+## ✨ Características Principales
 
-### **📱 Características Principales**
-- ✅ **100% Responsive** - Optimizado para todos los dispositivos
-- ✅ **Mobile-First Design** - Interfaz táctil perfecta
-- ✅ **Real Wallet Integration** - Phantom, Solflare mobile support
-- ✅ **Terminal Retro** - Experiencia nostálgica con efectos CRT
-- ✅ **Token Gating** - Verificación automática de balance SPL
-- ✅ **PWA Ready** - Instalable como app nativa
+### 🎮 **Terminal Retro Interactivo**
+- Interfaz de terminal cyberpunk con efectos CRT
+- Comandos interactivos con autocompletado
+- Sistema de progresión y logros gamificado
+- Eastereggs y mini-juegos integrados
 
-## 📱 **Optimización Móvil**
+### 📱 **Mobile-First Design**
+- **100% Responsive** desde 320px hasta 4K
+- **Touch-optimized** con áreas táctiles de 44px mínimo
+- **PWA ready** - instalable como app nativa
+- **Virtual keyboard** manejo inteligente iOS/Android
+- **Safe areas** soporte para notch/dynamic island
 
-### **🎯 Mobile Features**
-- **Touch-Optimized UI** - Áreas táctiles de 44px mínimo
-- **Virtual Keyboard Support** - Manejo inteligente del teclado
-- **Safe Area Compatible** - Soporte para dispositivos con notch
-- **Gesture Controls** - Navegación táctil fluida
-- **Mobile Wallet Integration** - Conexión directa desde wallets móviles
-- **Performance Optimized** - Bundles < 500KB, loading < 3s
+### 🔗 **Integración Blockchain Real**
+- **Multi-wallet support**: Phantom, Solflare, Backpack
+- **SPL Token gating** con verificación de balances real
+- **Multi-RPC failover** para conexiones confiables
+- **Smart contracts** en Rust/Anchor (en desarrollo)
 
-### **📊 Performance Metrics**
+### ⚡ **Performance Optimizado**
+- **Bundle size**: < 500KB (145KB gzipped)
 - **First Paint**: < 2s
-- **Interactive**: < 3s  
-- **Bundle Size**: 462KB total (145KB gzipped)
-- **Mobile Score**: 95/100
-- **Desktop Score**: 98/100
+- **Interactive**: < 3s
+- **Lighthouse score**: 95+ móvil, 98+ desktop
 
-## 🛠️ **Stack Tecnológico**
+## 🚀 Quick Start
 
-### **Frontend**
-- **React 18** + **Vite 5** - Fast build system
-- **Mobile-First CSS** - Responsive design from 320px to 4K
-- **Touch Events** - Native mobile interactions
-- **Service Worker** - PWA capabilities
-
-### **Blockchain**
-- **Solana Web3.js** - Blockchain interactions
-- **SPL Token Support** - Token gating system
-- **Multi-RPC Fallback** - Reliable connections
-- **Real Wallet Data** - Live balance updates
-
-### **Deployment**
-- **Vercel** - Edge deployment
-- **GitHub Actions** - CI/CD pipeline
-- **Environment Variables** - Secure configuration
-
-## 🚀 **Quick Start**
-
-### **🔧 Development Setup**
+### Desarrollo Local
 
 ```bash
 # Clonar repositorio
-git clone https://github.com/tu-usuario/solana-staking-dapp.git
+git clone https://github.com/yourusername/solana-staking-dapp.git
 cd solana-staking-dapp
 
 # Setup completo
@@ -74,136 +53,171 @@ cp .env.example .env
 # Editar .env con tus valores
 
 # Desarrollo con hot reload
+cd frontend
 npm run dev
 
-# Acceso local y red
-# Local: http://localhost:3000  
-# Red: http://[TU_IP]:3000
+# Acceso local: http://localhost:3000
+# Red local: http://[TU_IP]:3000 (para testing móvil)
 ```
 
-### **📱 Mobile Testing**
+### Deployment One-Click
 
-```bash
-# Obtener IP para testing móvil
-hostname -I | awk '{print $1}'
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/yourusername/solana-staking-dapp)
 
-# Abrir en móvil: http://[IP]:3000
-# Testear wallet connections
-# Probar PWA installation
-```
+## 🎯 Demo y Comandos
 
-## 🎯 **Comandos del Terminal**
+### 🌐 Live Demo
+[**https://your-deployment-url.vercel.app**](https://your-deployment-url.vercel.app)
 
-### **🔗 Wallet Operations**
-| Comando | Descripción | Ejemplo |
-|---------|-------------|---------|
-| `connect <wallet>` | Conecta wallet móvil/desktop | `connect phantom` |
-| `disconnect` | Desconecta wallet actual | `disconnect` |
-| `balance` | Balance SOL + tokens SPL | `balance` |
-| `walletinfo` | Info detallada de conexión | `walletinfo` |
+### 🎮 Comandos Principales
 
-### **💰 Staking Operations**
-| Comando | Descripción | Ejemplo |
-|---------|-------------|---------|
-| `stake <amount>` | Stake PROMPT tokens | `stake 100` |
-| `unstake <amount>` | Retira tokens staked | `unstake 50` |
-| `claim` | Reclama recompensas | `claim` |
-| `status` | Estado del staking | `status` |
-| `rewards` | Ver recompensas disponibles | `rewards` |
+| Categoría | Comando | Descripción |
+|-----------|---------|-------------|
+| **Wallet** | `connect phantom` | Conectar wallet móvil/desktop |
+| | `balance` | Ver balance SOL + tokens SPL |
+| | `disconnect` | Desconectar wallet |
+| **Staking** | `stake 100` | Hacer staking de tokens PROMPT |
+| | `unstake 50` | Retirar tokens del staking |
+| | `claim` | Reclamar recompensas |
+| | `status` | Estado del staking y estadísticas |
+| **Info** | `help` | Lista de todos los comandos |
+| | `about` | Información del protocolo |
+| | `apy` | Statistics y APY del pool |
+| **Fun** | `flip` | Lanzar una moneda |
+| | `snake` | Jugar Snake en terminal |
+| | `banner` | ASCII art PROMPT |
 
-### **📊 Information**
-| Comando | Descripción | Ejemplo |
-|---------|-------------|---------|
-| `help` | Lista todos los comandos | `help` |
-| `about` | Info del protocolo | `about` |
-| `apy` | Statistics y APY del pool | `apy` |
-| `profile` | Progresión del usuario | `profile` |
-| `price` | Precio actual de SOL | `price` |
-
-### **🎮 System & Fun**
-| Comando | Descripción | Ejemplo |
-|---------|-------------|---------|
-| `clear` | Limpia terminal | `clear` |
-| `banner` | ASCII art PROMPT | `banner` |
-| `flip` | Lanza una moneda | `flip` |
-| `dice` | Lanza un dado | `dice` |
-
-### **🔧 Diagnostics**
-| Comando | Descripción | Ejemplo |
-|---------|-------------|---------|
-| `debug <component>` | Info de debugging | `debug wallet` |
-| `health` | Health check del sistema | `health` |
-| `performance` | Métricas de performance | `performance` |
-| `logs <filter>` | Ver logs del sistema | `logs wallet` |
-
-## 📁 **Estructura del Proyecto**
+## 🏗️ Arquitectura del Proyecto
 
 ```
 solana-staking-dapp/
-├── 📱 frontend/                    # React app optimizada para móvil
-│   ├── 🎨 src/
-│   │   ├── 🧩 components/          # Terminal + SystemStats
-│   │   │   ├── Terminal.jsx        # Componente principal optimizado
-│   │   │   └── SystemStats.jsx     # Estadísticas en tiempo real
-│   │   ├── 🎣 hooks/               # Custom hooks
-│   │   │   └── useTerminal.js      # Hook principal con mobile optimization
-│   │   ├── 🔧 utils/               # Sistema modular
-│   │   │   ├── commands/           # Comandos organizados por categoría
-│   │   │   ├── config.js           # Configuración de redes
-│   │   │   ├── solana.js           # Multi-RPC con fallbacks
-│   │   │   ├── tokenGate.js        # Sistema de token gating
-│   │   │   ├── performance.js      # Optimizaciones de performance
-│   │   │   └── security.js         # Validaciones y seguridad
-│   │   ├── 🎨 styles/
-│   │   │   └── terminal.css        # CSS mobile-first responsive
-│   │   └── 🧪 __tests__/           # Test suite completo
-│   ├── 📄 index.html               # HTML optimizado para móvil
-│   ├── 📦 package.json             # Dependencies + PWA
-│   ├── ⚙️ vite.config.js           # Vite + PWA configuration
-│   └── 📱 manifest.json            # PWA manifest
-├── 🔧 .env.example                 # Template de configuración
-├── 🚀 vercel.json                  # Configuración de deployment
-├── 📖 README.md                    # Esta documentación
-└── 📱 MOBILE-OPTIMIZATION.md       # Guía detallada móvil
+├── 📱 frontend/                # React app principal
+│   ├── src/
+│   │   ├── components/         # Terminal + SystemStats
+│   │   ├── utils/commands/     # Sistema modular de comandos
+│   │   ├── services/           # Integración blockchain
+│   │   └── __tests__/          # Test suite completo
+│   ├── public/                 # Assets y PWA manifest
+│   └── package.json            # Dependencies y scripts
+├── 🔧 contracts/               # Smart contracts Rust/Anchor
+│   ├── programs/staking/       # Programa principal de staking
+│   └── tests/                  # Tests de contratos
+├── 📚 docs/                    # Documentación técnica
+│   ├── ARCHITECTURE.md         # Arquitectura del sistema
+│   ├── API.md                  # Documentación de API
+│   └── DEPLOYMENT-GUIDE.md     # Guía de deployment
+└── 🤖 CLAUDE.md                # Documentación para IA
 ```
 
-## 🔐 **Configuración de Environment**
+## 🛠️ Stack Tecnológico
 
-### **📋 Variables Requeridas**
+### Frontend
+- **React 18** + **Vite 5** - Build system ultra-rápido
+- **Mobile-First CSS** - Diseño responsive desde 320px
+- **PWA** - Service Worker + Manifest
+- **Solana Web3.js** - Integración blockchain
 
-Crea `.env` basado en `.env.example`:
+### Blockchain
+- **Solana** - Blockchain de alta performance
+- **Anchor Framework** - Smart contracts en Rust
+- **SPL Tokens** - Token estándar de Solana
+- **Multi-RPC** - Failover automático de endpoints
+
+### Testing & Quality
+- **Vitest** - Unit testing ultrarrápido
+- **Playwright** - E2E testing cross-browser
+- **ESLint** - Linting y calidad de código
+- **Coverage** - Métricas de cobertura
+
+### Deployment
+- **Vercel** - Edge deployment
+- **GitHub Actions** - CI/CD pipeline
+- **Environment Variables** - Configuración segura
+
+## 🔐 Configuración
+
+### Variables de Entorno
+
+Crea `.env` en el directorio `frontend/`:
 
 ```bash
-# Network Configuration (devnet/mainnet)
+# Network Configuration
 VITE_SOLANA_NETWORK=devnet
 VITE_SOLANA_RPC_URL=https://api.devnet.solana.com
 
-# Token Gating
+# Token Configuration
 VITE_PROMPT_TOKEN_MINT=5gusfEv5k4jR32Nnj92ftqj8u4deKk8KxCUZudZcnWxF
 VITE_MINIMUM_TOKEN_BALANCE=500
+
+# Optional: Custom RPC for better performance
+# VITE_SOLANA_RPC_URL=https://your-private-rpc.com
 ```
 
-### **🔄 Configuración por Red**
+### Configuración por Red
 
 **DEVNET (Testing):**
 ```bash
 VITE_SOLANA_NETWORK=devnet
 VITE_SOLANA_RPC_URL=https://api.devnet.solana.com
-VITE_PROMPT_TOKEN_MINT=5gusfEv5k4jR32Nnj92ftqj8u4deKk8KxCUZudZcnWxF
-VITE_MINIMUM_TOKEN_BALANCE=500
 ```
 
 **MAINNET (Production):**
 ```bash
 VITE_SOLANA_NETWORK=mainnet
 VITE_SOLANA_RPC_URL=https://api.mainnet-beta.solana.com
-VITE_PROMPT_TOKEN_MINT=[TU_TOKEN_MAINNET]
-VITE_MINIMUM_TOKEN_BALANCE=1000
+# Actualizar VITE_PROMPT_TOKEN_MINT al address de mainnet
 ```
 
-## 🚀 **Deployment**
+## 📱 Mobile Optimization
 
-### **⚡ Vercel Deploy (Recomendado)**
+### Características Mobile-First
+- **Touch targets**: 44px mínimo según guidelines de Apple/Google
+- **Viewport handling**: Safe areas para dispositivos con notch
+- **Keyboard management**: Scroll automático cuando aparece teclado virtual
+- **Performance**: Bundle splitting y lazy loading
+- **Gestures**: Soporte nativo para touch events
+
+### Testing en Móvil
+
+```bash
+# Obtener IP para testing desde móvil
+hostname -I | awk '{print $1}'
+
+# Acceder desde móvil: http://[IP]:3000
+# Probar instalación PWA
+# Testear conexión de wallets móviles
+```
+
+## 🧪 Testing
+
+### Scripts de Testing
+
+```bash
+# Unit tests rápidos
+npm run test:quick
+
+# Tests con coverage
+npm run test:coverage
+
+# E2E tests (todos los browsers)
+npm run test:e2e
+
+# E2E tests solo móvil
+npm run test:e2e:mobile
+
+# Suite completa
+npm run test:all
+```
+
+### Coverage Targets
+- **Branches**: 80%
+- **Functions**: 80%
+- **Lines**: 80%
+- **Statements**: 80%
+
+## 🚀 Deployment
+
+### Vercel (Recomendado)
 
 ```bash
 # Instalar Vercel CLI
@@ -212,265 +226,89 @@ npm i -g vercel
 # Deploy desde directorio raíz
 vercel --prod
 
-# O usar GitHub integration
-# 1. Push a GitHub
-# 2. Connect con Vercel
-# 3. Auto-deploy activado
+# Configurar variables de entorno en Vercel Dashboard
 ```
 
-### **🔧 Environment en Vercel**
+### Variables en Vercel
 
-Configura en Vercel Dashboard → Settings → Environment Variables:
+Configurar en Vercel Dashboard → Settings → Environment Variables:
+- `VITE_SOLANA_NETWORK`
+- `VITE_SOLANA_RPC_URL`
+- `VITE_PROMPT_TOKEN_MINT`
+- `VITE_MINIMUM_TOKEN_BALANCE`
 
-- `VITE_SOLANA_NETWORK` → `devnet` o `mainnet`
-- `VITE_SOLANA_RPC_URL` → RPC endpoint
-- `VITE_PROMPT_TOKEN_MINT` → Token address
-- `VITE_MINIMUM_TOKEN_BALANCE` → Balance mínimo
+### Auto-deploy
 
-### **📱 PWA Deployment**
+El proyecto incluye GitHub Actions para auto-deploy en push a `main`.
 
-Para habilitar PWA después del deploy:
+## 🛡️ Seguridad
 
-```bash
-cd frontend
-cp vite.config.pwa-fixed.js vite.config.js
-npm run build
-vercel --prod
-```
+### Características de Seguridad
+- ✅ **Input validation** - Sanitización completa de entradas
+- ✅ **Rate limiting** - Protección contra spam de comandos
+- ✅ **XSS prevention** - Sanitización de output
+- ✅ **Token verification** - Verificación real de balances SPL
+- ✅ **Error boundaries** - Manejo robusto de errores
+- ✅ **Security headers** - XSS y clickjacking protection
 
-## 🔐 **Seguridad & Token Gating**
-
-### **🛡️ Características de Seguridad**
-- ✅ **Input Validation** - Sanitización completa
-- ✅ **Rate Limiting** - Protección contra spam
-- ✅ **Wallet Verification** - Verificación real de balances
-- ✅ **Network Fallbacks** - Multiple RPC endpoints
-- ✅ **Error Boundaries** - Manejo robusto de errores
-- ✅ **Domain Protection** - Rate limiting por dominio
-- ✅ **Security Headers** - XSS y clickjacking protection
-
-### **🎫 Sistema Token Gating**
-- **Verificación Automática** - Balance mínimo requerido
-- **Cache Inteligente** - Optimización de requests
-- **Multi-Network** - Soporte devnet/mainnet
-- **Real-Time Updates** - Balances en tiempo real
-
-### **⚠️ Consideraciones de Seguridad**
-
-**🔒 Para Uso en Producción:**
-- Solo usar RPCs públicos sin API keys en el frontend
-- Implementar rate limiting por IP/dominio
-- Configurar Cloudflare o similar para DDoS protection
-- Monitorear usage analytics para detectar abuse
-- Considerar autenticación adicional para features avanzadas
-
-**🚨 Limitaciones Actuales:**
-- RPCs públicos tienen rate limits naturales
-- Frontend code es público (normal en SPAs)
-- Sin backend auth (apropiado para MVP)
-- Token gating básico (suficiente para demo)
-
-**📊 Para Mainnet:**
-- Usar RPCs privados para backend critical operations
-- Implementar backend API para operaciones sensibles
-- Añadir monitoring y alertas
+### Consideraciones para Producción
+- Usar RPCs privados para operaciones críticas
+- Implementar autenticación adicional si es necesario
+- Monitorear analytics para detectar abuso
 - Audit de smart contracts antes de mainnet
 
-## 📱 **Mobile Optimization Guide**
+## 🤝 Contribuir
 
-### **🎯 Testing Checklist**
+¡Las contribuciones son bienvenidas! Por favor revisa [CONTRIBUTING.md](CONTRIBUTING.md) para guidelines.
 
-**📱 Dispositivos Móviles:**
-- [ ] iPhone Safari (iOS 14+)
-- [ ] Android Chrome (v80+) 
-- [ ] Solflare Mobile Browser
-- [ ] Phantom Mobile Browser
-- [ ] iPad landscape/portrait
+### Development Flow
 
-**⚡ Performance:**
-- [ ] Loading < 3s
-- [ ] Touch responsiveness
-- [ ] Virtual keyboard handling
-- [ ] Wallet connection flow
-- [ ] PWA installation
+1. Fork el repositorio
+2. Crear branch para tu feature: `git checkout -b feature/amazing-feature`
+3. Hacer testing en múltiples dispositivos
+4. Commit con mensajes descriptivos: `git commit -m "feat: add amazing feature"`
+5. Push y crear Pull Request
 
-### **🔧 Mobile-Specific Features**
+### Issues y Bugs
 
-```javascript
-// Detección automática de móvil
-const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+Reporta bugs y solicita features en [GitHub Issues](https://github.com/yourusername/solana-staking-dapp/issues).
 
-// Touch events optimizados
-touch-action: manipulation;
--webkit-tap-highlight-color: transparent;
+## 📄 License
 
-// Viewport seguro para notch
-padding: max(12px, env(safe-area-inset-left));
-```
+Este proyecto está bajo la MIT License. Ver [LICENSE](LICENSE) para detalles.
 
-## 🤝 **Contributing**
+## 🏆 Roadmap
 
-### **🔄 Development Flow**
+### ✅ v1.0 (Actual)
+- [x] Terminal mobile-first completamente funcional
+- [x] Integración real con wallets Solana
+- [x] Sistema de token gating con SPL
+- [x] PWA con performance optimizada
+- [x] Suite completa de testing
 
-1. **Fork** el repositorio
-2. **Clone** tu fork localmente
-3. **Branch** para tu feature
-   ```bash
-   git checkout -b feature/amazing-mobile-feature
-   ```
-4. **Develop** con testing móvil
-5. **Test** en múltiples dispositivos
-6. **Commit** cambios descriptivos
-   ```bash
-   git commit -m "📱 Add mobile gesture controls"
-   ```
-7. **Push** y crear **Pull Request**
+### 🔄 v1.1 (Próximo)
+- [ ] Smart contracts Anchor en mainnet
+- [ ] Staking real funcional
+- [ ] Sistema de recompensas
+- [ ] Integración con Jupiter (swaps)
 
-### **🧪 Testing Requirements**
+### 📋 v2.0 (Futuro)
+- [ ] App móvil nativa (React Native)
+- [ ] Multi-chain support (Ethereum, Polygon)
+- [ ] DAO governance
+- [ ] AI trading assistant
 
-```bash
-# Lint check
-npm run lint
+## 📞 Support
 
-# Unit tests  
-npm test
-
-# Mobile build test
-npm run build
-
-# Local mobile testing
-npm run dev
-# Test en http://[IP]:3000
-```
-
-## 🐛 **Troubleshooting**
-
-### **📱 Problemas Móviles Comunes**
-
-**Zoom en Inputs (iOS):**
-```css
-input { font-size: 16px !important; }
-```
-
-**Teclado Virtual:**
-```javascript
-// Scroll automático cuando aparece teclado
-input.addEventListener('focus', () => {
-  setTimeout(() => {
-    input.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  }, 300);
-});
-```
-
-**PWA Installation:**
-- Verificar manifest.json válido
-- HTTPS requerido (Vercel lo incluye)
-- Service Worker registrado
-
-### **🔗 Issues Comunes**
-
-| Problema | Solución |
-|----------|----------|
-| Wallet no conecta en móvil | Abrir en browser de la wallet |
-| PWA no se instala | Verificar manifest + HTTPS |
-| Comandos no responden | Verificar touch events |
-| Performance lenta | Optimizar bundle size |
-
-## 📊 **Analytics & Monitoring**
-
-### **📈 Performance Metrics**
-- **Lighthouse Score**: 95+ mobile, 98+ desktop
-- **Core Web Vitals**: Todos en verde
-- **Bundle Analysis**: Optimizado con splitting
-- **Mobile UX**: Touch-friendly, responsive
-
-### **🔍 Debugging Tools**
-```bash
-# Debug mode
-localStorage.setItem('debug', 'true');
-
-# Performance monitoring  
-performance.mark('command-start');
-// ... command execution
-performance.measure('command-duration', 'command-start');
-```
-
-## 🔮 **Roadmap**
-
-### **✅ Completado (v1.0)**
-- [x] 📱 **Mobile-first responsive design**
-- [x] 🔗 **Real wallet integration** (Phantom, Solflare)
-- [x] 🎫 **SPL token gating system**
-- [x] ⚡ **Performance optimization** (< 500KB bundle)
-- [x] 🚀 **Vercel deployment** con auto-deploy
-- [x] 🧪 **Complete test suite** (ESLint passed)
-- [x] 📱 **PWA ready** (manifest + service worker)
-
-### **🔄 En Desarrollo (v1.1)**
-- [ ] 🎮 **Enhanced mobile gestures** (swipe, pinch)
-- [ ] 📳 **Haptic feedback** support
-- [ ] 🔊 **Voice commands** integration
-- [ ] 📊 **Advanced analytics** dashboard
-- [ ] 🎨 **Custom themes** system
-
-### **📋 Próximo (v2.0)**
-- [ ] ⚓ **Smart contracts** (Anchor framework)
-- [ ] 💰 **Real staking** functionality
-- [ ] 🔄 **Jupiter integration** (token swaps)
-- [ ] 🏆 **Rewards system** implementation
-- [ ] 🔒 **Security audit** professional
-
-### **🚀 Futuro (v3.0)**
-- [ ] 📱 **Native mobile app** (React Native)
-- [ ] 🌐 **Multi-chain support** (Ethereum, Polygon)
-- [ ] 🤖 **AI trading assistant**
-- [ ] 📈 **Advanced DeFi features**
-- [ ] 🏛️ **DAO governance** integration
-
-## 📄 **License**
-
-Este proyecto está bajo la **MIT License**. Ver [LICENSE](LICENSE) para detalles completos.
-
-## 📞 **Support & Community**
-
-### **🆘 Obtener Ayuda**
-- 🐛 **Bugs**: [GitHub Issues](https://github.com/tu-usuario/solana-staking-dapp/issues)
-- 💬 **Discusiones**: [GitHub Discussions](https://github.com/tu-usuario/solana-staking-dapp/discussions) 
-- 📧 **Contact**: tu-email@ejemplo.com
-
-### **🏆 Contributors**
-Agradecimientos especiales a todos los contribuidores que han ayudado a hacer este proyecto mobile-first y production-ready.
+- 🐛 **Bugs**: [GitHub Issues](https://github.com/yourusername/solana-staking-dapp/issues)
+- 💬 **Discusiones**: [GitHub Discussions](https://github.com/yourusername/solana-staking-dapp/discussions)
+- 📧 **Contacto**: your-email@example.com
+- 🐦 **Twitter**: [@yourhandle](https://twitter.com/yourhandle)
 
 ---
 
-## 🎯 **Quick Links**
+**🎯 Made with ❤️ for the Solana community**
 
-| Link | Descripción |
-|------|-------------|
-| 🌐 [**Live Demo**](https://your-deployment-url.vercel.app) | Prueba la aplicación ahora |
-| 📱 [**Mobile Guide**](MOBILE-OPTIMIZATION.md) | Guía completa de optimización móvil |
-| 🔧 [**GitHub Issues**](https://github.com/tu-usuario/solana-staking-dapp/issues) | Reportar bugs o sugerir features |
-| 📚 [**Technical Documentation**](docs/) | Documentación técnica completa |
-
-## 📖 **Documentation**
-
-### **Technical Documentation**
-| Document | Description |
-|----------|-------------|
-| 🔧 [**API Reference**](docs/API.md) | Complete API documentation and integration guide |
-| 🏗️ [**Architecture Guide**](docs/ARCHITECTURE.md) | System architecture and design patterns |
-| 🚀 [**Deployment Guide**](docs/DEPLOYMENT-GUIDE.md) | Comprehensive deployment and maintenance guide |
-
-### **Testing Documentation**
-- **E2E Tests**: Comprehensive end-to-end testing with Playwright
-  - Wallet integration tests
-  - Mobile-specific functionality tests
-  - Cross-browser compatibility tests
-- **Unit Tests**: Full coverage with Vitest and Testing Library
-- **Performance Tests**: Lighthouse audits and Core Web Vitals monitoring
-
----
-
-**🚀 ¡Comienza a stakear desde tu móvil ahora mismo!**
-
-[![Launch App](https://img.shields.io/badge/🚀_Launch-App_Now-00ff41?style=for-the-badge)](https://your-deployment-url.vercel.app)
+[![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
+[![GitHub Stars](https://img.shields.io/github/stars/yourusername/solana-staking-dapp.svg)](https://github.com/yourusername/solana-staking-dapp/stargazers)
+[![GitHub Forks](https://img.shields.io/github/forks/yourusername/solana-staking-dapp.svg)](https://github.com/yourusername/solana-staking-dapp/network)

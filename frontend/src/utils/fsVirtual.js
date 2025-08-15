@@ -1,5 +1,5 @@
 // fsVirtual.js - sistema de archivos diegético en memoria
-import { xorData, bytesToHex } from './puzzles';
+import { xorData } from './puzzles';
 
 // Internal utility: encode/decode UTF-8
 const enc = (s) => new TextEncoder().encode(s);
@@ -60,20 +60,20 @@ function pathParts(path) {
 }
 
 function getNode(root, path) {
-  if (!path || path === '/' ) return root;
+  if (!path || path === '/' ) {return root;}
   const parts = pathParts(path);
   let cur = root;
   for (const part of parts) {
-    if (cur.type !== 'dir') return null;
+    if (cur.type !== 'dir') {return null;}
     cur = (cur.children || []).find(ch => ch.name === part);
-    if (!cur) return null;
+    if (!cur) {return null;}
   }
   return cur;
 }
 
 function list(root, path) {
   const node = getNode(root, path);
-  if (!node) throw new Error('ENOENT');
+  if (!node) {throw new Error('ENOENT');}
   if (node.type === 'dir') {
     return (node.children || []).map(ch => ({ name: ch.name, type: ch.type, locked: !!ch.locked }));
   }
@@ -82,8 +82,8 @@ function list(root, path) {
 
 function read(root, path) {
   const node = getNode(root, path);
-  if (!node) throw new Error('ENOENT');
-  if (node.type !== 'file') throw new Error('EISDIR');
+  if (!node) {throw new Error('ENOENT');}
+  if (node.type !== 'file') {throw new Error('EISDIR');}
   return node.data;
 }
 
@@ -100,8 +100,8 @@ function write(root, path, bytes) {
     dir = next;
   }
   const existing = (dir.children || []).find(ch => ch.name === name);
-  if (existing && existing.type !== 'file') throw new Error('EISDIR');
-  if (existing) existing.data = bytes; else dir.children.push({ type: 'file', name, data: bytes });
+  if (existing && existing.type !== 'file') {throw new Error('EISDIR');}
+  if (existing) {existing.data = bytes;} else {dir.children.push({ type: 'file', name, data: bytes });}
 }
 
 function remove(root, path) {
@@ -110,11 +110,11 @@ function remove(root, path) {
   let dir = root;
   for (const part of parts) {
     const next = (dir.children || []).find(ch => ch.name === part);
-    if (!next) throw new Error('ENOENT');
+    if (!next) {throw new Error('ENOENT');}
     dir = next;
   }
   const idx = (dir.children || []).findIndex(ch => ch.name === name);
-  if (idx === -1) throw new Error('ENOENT');
+  if (idx === -1) {throw new Error('ENOENT');}
   dir.children.splice(idx, 1);
 }
 

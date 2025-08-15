@@ -1,16 +1,26 @@
 {
-  "name": "solana-staking-terminal",
+  "name": "prompt-staking-terminal",
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "description": "Terminal retro para staking de tokens $PROMPT",
+  "description": "Mobile-first retro terminal for $PROMPT token staking on Solana",
+  "keywords": ["solana", "staking", "defi", "terminal", "mobile-first", "pwa", "react", "typescript"],
+  "author": "Carlos <your-email@example.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/solana-staking-dapp.git",
+    "directory": "frontend"
+  },
+  "homepage": "https://your-deployment-url.vercel.app",
+  "bugs": {
+    "url": "https://github.com/yourusername/solana-staking-dapp/issues"
+  },
   "scripts": {
     "dev": "vite --host",
     "build": "vite build",
     "vercel-build": "npm run build",
     "preview": "vite preview --host",
-    "game:nyx": "node ../cli/cyberpunk_nyx.js",
-    "game:nyx:ghost": "node ../cli/cyberpunk_nyx.js --ghost",
     "setup": "npm install",
     "test": "vitest",
     "test:ui": "vitest --ui",

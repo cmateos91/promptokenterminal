@@ -4,8 +4,7 @@
  */
 
 import { Connection, PublicKey, Transaction, SystemProgram } from '@solana/web3.js';
-import { TOKEN_PROGRAM_ID, getAssociatedTokenAddress, createAssociatedTokenAccountInstruction } from '@solana/spl-token';
-import { devLogger, performanceLogger } from '../utils/logger';
+import { devLogger } from '../utils/logger';
 import { RPC_URL } from '../utils/config';
 
 // 🎯 Program IDs (actualizables por environment)

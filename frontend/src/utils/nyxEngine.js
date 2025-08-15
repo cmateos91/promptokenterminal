@@ -3,12 +3,7 @@
 import fsVirtual from './fsVirtual';
 import { makeSeed } from './puzzles';
 
-const COLORS = {
-  green: '#00ff41',
-  cyan: '#00ffff',
-  red: '#ff3333',
-  gray: '#888888',
-};
+// COLORS constants commented out as unused
 
 function glitch(text, intensity) {
   const chars = '!@#$%^&*()_+[]{}|;:,./<>?~=\\';
@@ -83,23 +78,23 @@ function err(text) {
 }
 
 function startGhost() {
-  if (state.ghost.on) return;
+  if (state.ghost.on) {return;}
   state.ghost.on = true;
   state.ghost.id = setInterval(() => {
-    if (state.ended || state.timer.active) return;
+    if (state.ended || state.timer.active) {return;}
     const msg = ghostMessages[Math.floor(Math.random() * ghostMessages.length)];
     push('info', glitch(msg, 0.12));
   }, 4000 + Math.floor(Math.random() * 4000));
 }
 
 function stopGhost() {
-  if (state.ghost.id) clearInterval(state.ghost.id);
+  if (state.ghost.id) {clearInterval(state.ghost.id);}
   state.ghost.id = null;
   state.ghost.on = false;
 }
 
 function startTimer(seconds, onTimeoutTick) {
-  if (state.timer.active) return;
+  if (state.timer.active) {return;}
   state.timer.active = true;
   state.timer.remaining = seconds;
   state.timer.id = setInterval(() => {
@@ -115,7 +110,7 @@ function startTimer(seconds, onTimeoutTick) {
 }
 
 function stopTimer() {
-  if (state.timer.id) clearInterval(state.timer.id);
+  if (state.timer.id) {clearInterval(state.timer.id);}
   state.timer.id = null;
   state.timer.active = false;
 }
@@ -160,7 +155,7 @@ async function revealNyxLie() {
 }
 
 async function ending(which) {
-  if (state.ended) return { type: 'info', content: 'End reached' };
+  if (state.ended) {return { type: 'info', content: 'End reached' };}
   state.ended = true;
   stopTimer();
   stopGhost();
@@ -209,7 +204,7 @@ function canSpend(n) {
 }
 
 function spendQuota(n) {
-  if (!canSpend(n)) return false;
+  if (!canSpend(n)) {return false;}
   state.quota -= n;
   return true;
 }
@@ -237,8 +232,8 @@ export const nyxEngine = {
   canSpend,
   spendQuota,
   isSecretCommand(input) {
-    if (!state.player.name) return false;
-    if (!state.flags || !state.flags.saltVerified) return false;
+    if (!state.player.name) {return false;}
+    if (!state.flags || !state.flags.saltVerified) {return false;}
     return input.trim().toLowerCase() === `${state.player.name.toLowerCase()}()`;
   },
 };

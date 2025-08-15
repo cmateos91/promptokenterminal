@@ -56,18 +56,18 @@ export const nyxCommands = {
   // Infer ROT shift from invalid time digits in a log line hh:mm:ss
   rot_suggest: async (args) => {
     const path = (args && args[0]);
-    if (!path) return err('rot_suggest: <file>');
+    if (!path) {return err('rot_suggest: <file>');}
     try {
       const data = fsVirtual.read(nyxEngine.state.fs, path);
       const txt = bytesToString(data);
       const m = txt.match(/\b(\d{2}):(\d{2}):(\d{2})\b/);
-      if (!m) return err('rot_suggest: no time found');
+      if (!m) {return err('rot_suggest: no time found');}
       const hh = parseInt(m[1], 10), mm = parseInt(m[2], 10), ss = parseInt(m[3], 10);
       let sum = 0;
       function addDigits(n){ String(n).split('').forEach(d=>{ sum += parseInt(d,10); }); }
-      if (hh >= 24) addDigits(hh);
-      if (mm >= 60) addDigits(mm);
-      if (ss >= 60) addDigits(ss);
+      if (hh >= 24) {addDigits(hh);}
+      if (mm >= 60) {addDigits(mm);}
+      if (ss >= 60) {addDigits(ss);}
       const shift = ((sum % 26) + 26) % 26;
       return okInfo(`rot shift = ${shift}`);
     } catch {
@@ -77,16 +77,16 @@ export const nyxCommands = {
 
   rot_apply: async (args) => {
     const path = (args && args[0]);
-    if (!path) return err('rot_apply: <file>');
+    if (!path) {return err('rot_apply: <file>');}
     try {
       // reuse suggestion
       const data = fsVirtual.read(nyxEngine.state.fs, path);
       const txt = bytesToString(data);
       const m = txt.match(/\b(\d{2}):(\d{2}):(\d{2})\b/);
-      if (!m) return err('rot_apply: no time found');
+      if (!m) {return err('rot_apply: no time found');}
       const hh = parseInt(m[1], 10), mm = parseInt(m[2], 10), ss = parseInt(m[3], 10);
       let sum = 0; function addDigits(n){ String(n).split('').forEach(d=>{ sum += parseInt(d,10); }); }
-      if (hh >= 24) addDigits(hh); if (mm >= 60) addDigits(mm); if (ss >= 60) addDigits(ss);
+      if (hh >= 24) {addDigits(hh);} if (mm >= 60) {addDigits(mm);} if (ss >= 60) {addDigits(ss);}
       const shift = ((sum % 26) + 26) % 26;
       const out = caesar(txt, -shift);
       const outName = `tmp/${path.split('/').pop()}.dec`;
@@ -112,7 +112,7 @@ export const nyxCommands = {
 
   cat: async (args) => {
     const path = (args && args[0]);
-    if (!path) return err('cat: path required');
+    if (!path) {return err('cat: path required');}
     try {
       const data = fsVirtual.read(nyxEngine.state.fs, path);
       return okGame(bytesToString(data));
@@ -124,7 +124,7 @@ export const nyxCommands = {
 
   hexdump: async (args) => {
     const path = (args && args[0]);
-    if (!path) return err('hexdump: path required');
+    if (!path) {return err('hexdump: path required');}
     try {
       const data = fsVirtual.read(nyxEngine.state.fs, path);
       // record evidence for contextual derives
@@ -140,7 +140,7 @@ export const nyxCommands = {
 
   strings: async (args) => {
     const path = (args && args[0]);
-    if (!path) return err('strings: path required');
+    if (!path) {return err('strings: path required');}
     try {
       const data = fsVirtual.read(nyxEngine.state.fs, path);
       const s = bytesToString(data);
@@ -154,7 +154,7 @@ export const nyxCommands = {
   grep: async (args) => {
     const pattern = args && args[0];
     const path = args && args[1];
-    if (!pattern || !path) return err('grep: <regex> <path>');
+    if (!pattern || !path) {return err('grep: <regex> <path>');}
     try {
       const re = new RegExp(pattern);
       const data = fsVirtual.read(nyxEngine.state.fs, path);
@@ -169,19 +169,19 @@ export const nyxCommands = {
   pipe: async (args) => {
     const joined = (args || []).join(' ');
     const [left, right] = joined.split('|').map(s => s.trim());
-    if (!left || !right) return err('pipe: cmd1 | cmd2');
+    if (!left || !right) {return err('pipe: cmd1 | cmd2');}
     // Limited pipe support: only for ls/cat/hexdump/strings -> grep
     const runSimple = async (cmdline) => {
       const [cmd, ...a] = cmdline.split(/\s+/);
-      if (cmd === 'cat') return (await nyxCommands.cat(a)).content;
-      if (cmd === 'ls') return (await nyxCommands.ls(a)).content;
-      if (cmd === 'hexdump') return (await nyxCommands.hexdump(a)).content;
-      if (cmd === 'strings') return (await nyxCommands.strings(a)).content;
+      if (cmd === 'cat') {return (await nyxCommands.cat(a)).content;}
+      if (cmd === 'ls') {return (await nyxCommands.ls(a)).content;}
+      if (cmd === 'hexdump') {return (await nyxCommands.hexdump(a)).content;}
+      if (cmd === 'strings') {return (await nyxCommands.strings(a)).content;}
       return '';
     };
     const leftOut = await runSimple(left);
     const [rCmd, rArg] = right.split(/\s+/);
-    if (rCmd !== 'grep') return err('pipe: only supports | grep <regex>');
+    if (rCmd !== 'grep') {return err('pipe: only supports | grep <regex>');}
     try {
       const re = new RegExp(rArg || '');
       const lines = (leftOut || '').split(/\r?\n/).filter(l => re.test(l));
@@ -194,7 +194,7 @@ export const nyxCommands = {
   // --- Crypto & derive ---
   analyze: async (args) => {
     const path = (args && args[0]);
-    if (!path) return err('analyze: <file>');
+    if (!path) {return err('analyze: <file>');}
     try {
       const data = fsVirtual.read(nyxEngine.state.fs, path);
       const res = analyzeContent(data);
@@ -208,13 +208,13 @@ export const nyxCommands = {
   b64: async (args) => {
     const mode = args && args[0];
     const path = args && args[1];
-    if (!mode || !path) return err('b64 <enc|dec> <file>');
+    if (!mode || !path) {return err('b64 <enc|dec> <file>');}
     try {
       const data = fsVirtual.read(nyxEngine.state.fs, path);
       let out;
-      if (mode === 'enc') out = b64.enc(bytesToString(data));
-      else if (mode === 'dec') out = b64.dec(bytesToString(data));
-      else return err('b64: mode');
+      if (mode === 'enc') {out = b64.enc(bytesToString(data));}
+      else if (mode === 'dec') {out = b64.dec(bytesToString(data));}
+      else {return err('b64: mode');}
       const outName = `tmp/${path.split('/').pop()}.${mode}`;
       fsVirtual.write(nyxEngine.state.fs, outName, new TextEncoder().encode(out));
       // Detect OMEGA double decode sequence
@@ -235,7 +235,7 @@ export const nyxCommands = {
     const mode = args && args[0];
     const path = args && args[1];
     const key = args && args[2];
-    if (!mode || !path || !key) return err('xor <enc|dec> <file> <key>');
+    if (!mode || !path || !key) {return err('xor <enc|dec> <file> <key>');}
     try {
       const data = fsVirtual.read(nyxEngine.state.fs, path);
       const outBytes = xorData(data, key);
@@ -259,7 +259,7 @@ export const nyxCommands = {
   caesar: async (args) => {
     const shift = parseInt(args && args[0]);
     const path = args && args[1];
-    if (Number.isNaN(shift) || !path) return err('caesar <shift> <file>');
+    if (Number.isNaN(shift) || !path) {return err('caesar <shift> <file>');}
     const data = fsVirtual.read(nyxEngine.state.fs, path);
     const out = caesar(bytesToString(data), shift);
     fsVirtual.write(nyxEngine.state.fs, `tmp/${path.split('/').pop()}.caesar`, new TextEncoder().encode(out));
@@ -269,7 +269,7 @@ export const nyxCommands = {
   vigenere: async (args) => {
     const key = args && args[0];
     const path = args && args[1];
-    if (!key || !path) return err('vigenere <key> <file>');
+    if (!key || !path) {return err('vigenere <key> <file>');}
     const data = fsVirtual.read(nyxEngine.state.fs, path);
     const out = vigenere(bytesToString(data), key, true);
     fsVirtual.write(nyxEngine.state.fs, `tmp/${path.split('/').pop()}.vig`, new TextEncoder().encode(out));
@@ -295,7 +295,7 @@ export const nyxCommands = {
       nyxEngine.state.flags.impersonated = true;
       // desbloquear omega.key
       const node = fsVirtual.getNode(nyxEngine.state.fs, 'core/doors/omega.key');
-      if (node) node.locked = false;
+      if (node) {node.locked = false;}
       return okInfo('session adopted');
     }
     nyxEngine.bumpThreat(10);
@@ -317,7 +317,7 @@ export const nyxCommands = {
 
   pack: async (args) => {
     const path = args && args[0];
-    if (!path) return err('pack <file>');
+    if (!path) {return err('pack <file>');}
     const data = fsVirtual.read(nyxEngine.state.fs, path);
     const skew = 7; // toy skew
     const header = new TextEncoder().encode(`PACK\nSK=${skew}\n`);
@@ -329,7 +329,7 @@ export const nyxCommands = {
 
   unpack: async (args) => {
     const path = args && args[0];
-    if (!path) return err('unpack <file>');
+    if (!path) {return err('unpack <file>');}
     const data = fsVirtual.read(nyxEngine.state.fs, path);
     const txt = bytesToString(data);
     const m = txt.match(/SK=(\d+)/);
@@ -353,7 +353,7 @@ export const nyxCommands = {
   },
 
   reset_puzzle: async () => {
-    if (!nyxEngine.spendQuota(10)) return err('quota: insufficient');
+    if (!nyxEngine.spendQuota(10)) {return err('quota: insufficient');}
     nyxEngine.state.puzzleSeed = Math.floor(Math.random()*1e9);
     nyxEngine.state.flags.finalVerified = false;
     nyxEngine.bumpThreat(3);
@@ -361,7 +361,7 @@ export const nyxCommands = {
   },
   'set_name': async (args) => {
     const name = (args || []).join(' ').trim();
-    if (!name) return err('Usage: set_name <your_name>');
+    if (!name) {return err('Usage: set_name <your_name>');}
     nyxEngine.state.player.name = name;
     nyxEngine.revealNyxLie();
     nyxEngine.state.chapter = 1;
@@ -370,7 +370,7 @@ export const nyxCommands = {
   },
 
   'scan_network': async () => {
-    if (nyxEngine.state.chapter !== 1) return err('Out-of-sequence.');
+    if (nyxEngine.state.chapter !== 1) {return err('Out-of-sequence.');}
     nyxEngine.state.chapter = 1; // stays
     nyxEngine.sys('Irregular traffic…');
     nyxEngine.sys('Signature trail at root.');
@@ -380,9 +380,9 @@ export const nyxCommands = {
 
   decrypt: async (args) => {
     const file = (args || [])[0];
-    if (!file) return err('Usage: decrypt <file>');
-    if (file !== 'firewall.sig') return err('Unknown file.');
-    if (nyxEngine.state.chapter < 1) return err('Nothing to decrypt yet.');
+    if (!file) {return err('Usage: decrypt <file>');}
+    if (file !== 'firewall.sig') {return err('Unknown file.');}
+    if (nyxEngine.state.chapter < 1) {return err('Nothing to decrypt yet.');}
     if (!nyxEngine.state.flags.firewallDecrypted) {
       nyxEngine.bumpThreat(2);
       return err('Key material incomplete.');
@@ -398,8 +398,8 @@ export const nyxCommands = {
 
   trace: async (args) => {
     const target = (args || [])[0];
-    if (nyxEngine.state.chapter < 2 || !nyxEngine.state.flags.firewallDecrypted) return err('Trace is not visible yet.');
-    if (!target) return err('Usage: trace <id|ip>');
+    if (nyxEngine.state.chapter < 2 || !nyxEngine.state.flags.firewallDecrypted) {return err('Trace is not visible yet.');}
+    if (!target) {return err('Usage: trace <id|ip>');}
     nyxEngine.sys(`Tracing ${target}… packets… latency…`);
     nyxEngine.state.phantomAware = true;
     nyxEngine.nyx('PHANTOM is not one. They are many.');
@@ -411,7 +411,7 @@ export const nyxCommands = {
   },
 
   'fork_process': async () => {
-    if (nyxEngine.state.chapter < 3) return err('Not the time to fork.');
+    if (nyxEngine.state.chapter < 3) {return err('Not the time to fork.');}
     nyxEngine.sys('Creating mirror instance…');
     nyxEngine.state.forked = true;
     nyxEngine.state.cloneDefiant = Math.random() < 0.6;
@@ -444,7 +444,7 @@ export const nyxCommands = {
   },
 
   'system_reboot()': async () => {
-    if (nyxEngine.state.chapter < 4) return err('You have not reached the core yet.');
+    if (nyxEngine.state.chapter < 4) {return err('You have not reached the core yet.');}
     if (!nyxEngine.state.flags.cloneSynced || !nyxEngine.state.flags.impersonated || !nyxEngine.state.flags.finalVerified) {
       nyxEngine.bumpThreat(3);
       return err('Requirements not met.');
@@ -455,7 +455,7 @@ export const nyxCommands = {
   },
 
   'release_phantom()': async () => {
-    if (nyxEngine.state.chapter < 4) return err('You have not reached the core yet.');
+    if (nyxEngine.state.chapter < 4) {return err('You have not reached the core yet.');}
     if (!nyxEngine.state.flags.cloneSynced || !nyxEngine.state.flags.impersonated || !nyxEngine.state.flags.finalVerified) {
       nyxEngine.bumpThreat(3);
       return err('Requirements not met.');

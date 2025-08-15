@@ -4,6 +4,7 @@
  */
 
 import { mockWalletState } from '../userState';
+import { RPC_URL } from '../config';
 import { validateTransactionAmount } from '../security';
 import { devLogger } from '../logger';
 
@@ -564,7 +565,7 @@ export const stakingCommands = {
         const globalVaultAddress = GLOBAL_STAKING_VAULT;
         const vaultTokenAccount = await getAssociatedTokenAddress(TOKEN_MINT, globalVaultAddress);
         
-        let vaultInfo = {
+        const vaultInfo = {
           totalStaked: 0,
           tokenAccountExists: false,
           vaultExists: false,
@@ -648,7 +649,7 @@ export const stakingCommands = {
         const globalVaultAddress = GLOBAL_STAKING_VAULT;
         const vaultTokenAccount = await getAssociatedTokenAddress(TOKEN_MINT, globalVaultAddress);
         
-        let stats = {
+        const stats = {
           totalStaked: 0,
           totalValueUSD: 0,
           stakingAPY: 15.2,
@@ -802,7 +803,7 @@ export const stakingCommands = {
         const vaultAddress = stakingVaultKeypair.publicKey.toString();
         const vaultTokenAccount = await getAssociatedTokenAddress(TOKEN_MINT, stakingVaultKeypair.publicKey);
         
-        let vaultInfo = {
+        const vaultInfo = {
           exists: false,
           balance: 0,
           tokenAccountExists: false
@@ -875,7 +876,7 @@ export const stakingCommands = {
       devLogger.command('staking:contract', { action }, null);
       
       switch (action.toLowerCase()) {
-        case 'status':
+        case 'status': {
           const health = stakingService ? await stakingService.getContractHealth() : null;
           const duration = performance.now() - startTime;
           
@@ -883,15 +884,17 @@ export const stakingCommands = {
             type: 'result',
             content: `🏗️ CONTRACT STATUS\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n🔗 Service:       ${stakingService ? 'Loaded' : 'Not Available'}\n🏦 Program ID:    ${stakingService?.programId?.toString() || 'TBD'}\n📡 Connection:    ${health?.connection?.endpoint || RPC_URL}\n✅ Deployed:      ${health?.programDeployed ? 'Yes' : 'No'}\n📊 Metrics:       ${health?.metrics?.totalCalls || 0} calls\n⏱️  Avg Latency:   ${health?.metrics?.averageLatency?.toFixed(0) || 0}ms\n🤖 AI Debug:      Ready\n\n⏱️  Response: ${duration.toFixed(0)}ms`
           };
+        }
           
-        case 'metrics':
+        case 'metrics': {
           const metrics = stakingService ? stakingService.getMetrics() : {};
           return {
             type: 'result',
             content: `📊 CONTRACT METRICS\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n📞 Total Calls:    ${metrics.totalCalls || 0}\n⚡ Avg Latency:    ${metrics.averageLatency?.toFixed(0) || 0}ms\n❌ Error Rate:     ${metrics.errorRate?.toFixed(1) || 0}%\n🏥 Health:         ${metrics.status || 'Unknown'}\n📅 Last Call:      ${metrics.lastCall ? new Date(metrics.lastCall).toLocaleTimeString() : 'Never'}\n\n🤖 AI Monitoring: Active`
           };
+        }
           
-        case 'debug':
+        case 'debug': {
           const debugData = stakingService ? stakingService.exportDebugData() : { error: 'Service not available' };
           // Log to console for AI analysis
           if (import.meta.env.DEV) {
@@ -902,6 +905,7 @@ export const stakingCommands = {
             type: 'result',
             content: `🔍 CONTRACT DEBUG\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n📋 Debug data exported to console\n🤖 Available for AI analysis\n📊 Includes metrics, config, and logs\n\nCheck browser console for full data.`
           };
+        }
           
         default:
           return {

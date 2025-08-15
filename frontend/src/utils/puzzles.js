@@ -41,9 +41,9 @@ export function caesar(text, shift) {
   const mod = (n, m) => ((n % m) + m) % m;
   return text.split('').map(ch => {
     const i = a.indexOf(ch);
-    if (i >= 0) return a[mod(i + shift, 26)];
+    if (i >= 0) {return a[mod(i + shift, 26)];}
     const j = A.indexOf(ch);
-    if (j >= 0) return A[mod(j + shift, 26)];
+    if (j >= 0) {return A[mod(j + shift, 26)];}
     return ch;
   }).join('');
 }
@@ -56,7 +56,7 @@ export function vigenere(text, key, decode = false) {
   let ki = 0;
   return text.split('').map(ch => {
     const ci = a.indexOf(ch.toLowerCase());
-    if (ci === -1) return ch;
+    if (ci === -1) {return ch;}
     const ks = a.indexOf(k[ki % k.length]);
     const val = decode ? mod(ci - ks, 26) : mod(ci + ks, 26);
     const out = a[val];
@@ -77,7 +77,7 @@ export function crc16(bytes) {
     for (let j = 0; j < 8; j++) {
       const carry = crc & 1;
       crc >>= 1;
-      if (carry) crc ^= 0xA001; // polinomio típico modbus
+      if (carry) {crc ^= 0xA001;} // polinomio típico modbus
     }
   }
   return crc & 0xFFFF;
@@ -115,10 +115,10 @@ export function analyzeContent(bytes) {
   const entropyish = sumMod(bytes, 997);
 
   const hints = [];
-  if (looksB64) hints.push('b64?');
-  if (!printable && zeros < bytes.length / 4) hints.push('xor?');
-  if (/\d{4}-\d{2}-\d{2}/.test(text) && /25\d{2}/.test(text)) hints.push('rot/caesar? timestamp off');
-  if (/SALT:/.test(text)) hints.push('salt token present');
+  if (looksB64) {hints.push('b64?');}
+  if (!printable && zeros < bytes.length / 4) {hints.push('xor?');}
+  if (/\d{4}-\d{2}-\d{2}/.test(text) && /25\d{2}/.test(text)) {hints.push('rot/caesar? timestamp off');}
+  if (/SALT:/.test(text)) {hints.push('salt token present');}
 
   return { printable, looksB64, zeros, entropyish, textPreview: text.slice(0, 200), hints };
 }

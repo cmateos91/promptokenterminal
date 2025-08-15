@@ -5,7 +5,7 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { stakingCommands } from '../utils/commands/staking';
-import { mockWalletState, userProgress } from '../utils/userState';
+import { mockWalletState } from '../utils/userState';
 import { devLogger } from '../utils/logger';
 
 // Mock the contract service

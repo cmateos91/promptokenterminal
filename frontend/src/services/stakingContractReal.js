@@ -3,14 +3,8 @@
  * Integrated with deployed Anchor program
  */
 
-import { Connection, PublicKey, Transaction, SystemProgram } from '@solana/web3.js';
-import { 
-  TOKEN_PROGRAM_ID, 
-  getAssociatedTokenAddress, 
-  createAssociatedTokenAccountInstruction,
-  getMint,
-  getAccount
-} from '@solana/spl-token';
+import { Connection, PublicKey, SystemProgram } from '@solana/web3.js';
+import { TOKEN_PROGRAM_ID, getAssociatedTokenAddress } from '@solana/spl-token';
 import * as anchor from '@coral-xyz/anchor';
 import { devLogger } from '../utils/logger';
 import { RPC_URL } from '../utils/config';
@@ -154,8 +148,8 @@ export class RealStakingContractService {
    * Initialize Anchor program with wallet
    */
   async initializeProgram(wallet) {
-    if (!wallet) throw new Error('Wallet required');
-    if (!wallet.publicKey) throw new Error('Wallet not connected properly');
+    if (!wallet) {throw new Error('Wallet required');}
+    if (!wallet.publicKey) {throw new Error('Wallet not connected properly');}
     
     // Debug wallet object
     console.log('Wallet object:', {
@@ -277,7 +271,7 @@ export class RealStakingContractService {
    */
   async initializePool(stakeMint, baseTokenMint, rewardRate, minStakeDuration, userWallet) {
     try {
-      if (!this.program) await this.initializeProgram(userWallet);
+      if (!this.program) {await this.initializeProgram(userWallet);}
       
       const stakingPool = this.getStakingPoolAddress(stakeMint);
       
@@ -354,7 +348,7 @@ export class RealStakingContractService {
    */
   async stakeTokens(amount, stakeMint, userWallet) {
     try {
-      if (!this.program) await this.initializeProgram(userWallet);
+      if (!this.program) {await this.initializeProgram(userWallet);}
       
       const stakingPool = this.getStakingPoolAddress(stakeMint);
       const userStake = this.getUserStakeAddress(userWallet.publicKey, stakingPool);
@@ -395,7 +389,7 @@ export class RealStakingContractService {
    */
   async unstakeTokens(stakeMint, userWallet) {
     try {
-      if (!this.program) await this.initializeProgram(userWallet);
+      if (!this.program) {await this.initializeProgram(userWallet);}
       
       const stakingPool = this.getStakingPoolAddress(stakeMint);
       const userStake = this.getUserStakeAddress(userWallet.publicKey, stakingPool);
@@ -431,7 +425,7 @@ export class RealStakingContractService {
    */
   async claimRewards(stakeMint, rewardTokenMint, userWallet) {
     try {
-      if (!this.program) await this.initializeProgram(userWallet);
+      if (!this.program) {await this.initializeProgram(userWallet);}
       
       const stakingPool = this.getStakingPoolAddress(stakeMint);
       const userStake = this.getUserStakeAddress(userWallet.publicKey, stakingPool);
@@ -476,7 +470,7 @@ export class RealStakingContractService {
    */
   async getUserStakeInfo(stakeMint, userWallet) {
     try {
-      if (!this.program) await this.initializeProgram(userWallet);
+      if (!this.program) {await this.initializeProgram(userWallet);}
       
       const stakingPool = this.getStakingPoolAddress(stakeMint);
       const userStake = this.getUserStakeAddress(userWallet.publicKey, stakingPool);
