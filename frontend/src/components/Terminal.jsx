@@ -41,23 +41,41 @@ export default function Terminal() {
     return () => window.removeEventListener('terminal-command', handleCommand);
   }, []);
 
-  // Prevenir comportamientos por defecto en móvil
+  // Prevenir pull-to-refresh pero permitir scroll normal en móvil
   useEffect(() => {
-    if (!isMobile) {return;}
+    if (!isMobile) return;
 
-    const preventDefault = (e) => {
-      // Prevenir pull-to-refresh en ciertos elementos
-      if (e.target.closest('.terminal-output') || e.target.closest('.terminal-input-area')) {
-        if (e.touches.length === 1 && e.touches[0].clientY > 0) {
-          e.preventDefault();
-        }
+    let startY = 0;
+
+    const handleTouchStart = (e) => {
+      startY = e.touches[0].clientY;
+    };
+
+    const handleTouchMove = (e) => {
+      const terminalOutput = e.target.closest('.terminal-output');
+      const currentY = e.touches[0].clientY;
+      const deltaY = currentY - startY;
+
+      // Solo prevenir pull-to-refresh cuando:
+      // 1. El usuario está en el área del terminal output
+      // 2. Está en el tope del scroll (scrollTop === 0)
+      // 3. Está intentando deslizar hacia abajo (deltaY > 0)
+      if (terminalOutput && terminalOutput.scrollTop === 0 && deltaY > 0) {
+        e.preventDefault();
+      }
+      
+      // Para áreas que no son el terminal output, prevenir pull-to-refresh
+      if (!terminalOutput && deltaY > 0) {
+        e.preventDefault();
       }
     };
 
-    document.addEventListener('touchmove', preventDefault, { passive: false });
+    document.addEventListener('touchstart', handleTouchStart, { passive: true });
+    document.addEventListener('touchmove', handleTouchMove, { passive: false });
     
     return () => {
-      document.removeEventListener('touchmove', preventDefault);
+      document.removeEventListener('touchstart', handleTouchStart);
+      document.removeEventListener('touchmove', handleTouchMove);
     };
   }, [isMobile]);
 

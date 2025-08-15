@@ -150,6 +150,11 @@ body {
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
   scroll-behavior: smooth;
+  /* Asegurar que el scroll funcione en móvil */
+  touch-action: pan-y;
+  /* Mejorar performance del scroll */
+  will-change: scroll-position;
+  transform: translateZ(0);
 }
 
 .terminal-output::-webkit-scrollbar {
