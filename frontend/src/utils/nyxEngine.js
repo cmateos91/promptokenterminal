@@ -2,6 +2,7 @@
 // Uses window.terminalAddMessage to push asynchronous updates (ghost mode, timer)
 import fsVirtual from './fsVirtual';
 import { makeSeed } from './puzzles';
+import { nyxResponder } from './nyxDialog';
 
 // COLORS constants commented out as unused
 
@@ -75,6 +76,16 @@ function sysRaw(text) {
 
 function err(text) {
   push('error', glitch(text, 0.06));
+}
+
+// Generate dynamic dialogue using OpenAI
+async function chat(message) {
+  try {
+    const reply = await nyxResponder(message);
+    nyx(reply);
+  } catch (_) {
+    err('NYX channel unavailable.');
+  }
 }
 
 function startGhost() {
@@ -216,6 +227,7 @@ export const nyxEngine = {
   sys,
   sysRaw,
   err,
+  chat,
   intro,
   chapter1,
   chapter2,
