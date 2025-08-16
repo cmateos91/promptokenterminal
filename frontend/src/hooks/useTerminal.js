@@ -226,6 +226,20 @@ export function useTerminal() {
         if (newHistory[newHistory.length - 1]?.type === 'loading') {
           newHistory.pop();
         }
+        
+        // Handle NYX-processed messages specially
+        if (result.type === 'nyx-processed') {
+          return [...newHistory, {
+            type: result.originalType,
+            content: result.originalContent,
+            timestamp: result.timestamp || Date.now()
+          }, {
+            type: 'nyx-response',
+            content: `NYX> ${result.nyxResponse}`,
+            timestamp: (result.timestamp || Date.now()) + 1
+          }];
+        }
+        
         return [...newHistory, result];
       });
     }
@@ -313,6 +327,7 @@ export function useTerminal() {
   const addMessage = useCallback((message) => {
     setHistory(prev => [...prev, message]);
   }, []);
+
 
   // Expose addMessage to window for games
   useEffect(() => {

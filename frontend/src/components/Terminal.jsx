@@ -146,6 +146,12 @@ export default function Terminal() {
             </pre>
           </div>
         );
+      case 'nyx-response':
+        return (
+          <div key={index} className="command-result nyx-response">
+            {item.content}
+          </div>
+        );
       default:
         return (
           <div key={index} className="command-result">

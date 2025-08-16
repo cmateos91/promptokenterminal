@@ -376,6 +376,22 @@ body {
   animation: gameStart 0.5s ease-out;
 }
 
+/* NYX Response Styling */
+.nyx-response {
+  color: #ff6600;
+  border-left: 3px solid #ff6600;
+  padding-left: 10px;
+  margin: 5px 0;
+  background: rgba(255, 102, 0, 0.1);
+  font-weight: 500;
+}
+
+.nyx-response::before {
+  content: "⚡ ";
+  color: #ffaa00;
+  font-weight: bold;
+}
+
 @keyframes gameStart {
   0% { opacity: 0; transform: scale(0.95); }
   100% { opacity: 1; transform: scale(1); }

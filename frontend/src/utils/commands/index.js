@@ -7,9 +7,12 @@ import { easterEggCommands } from "./easterEggs";
 import { diagnosticCommands, userDiagnosticCommands } from "./diagnostics";
 import { adminCommands } from "./admin";
 import { gameCommands } from "./games";
+import { gamingCommands } from "./gaming";
 import { nyxCommands } from "./nyx";
 import { nyxEngine } from "../nyxEngine";
+import { nyxUniversalProcessor } from "../nyxDialog";
 import { userProgress, checkLevelUp, getUserStatus } from "../userState";
+import { promptEconomy } from "../promptEconomy";
 import { hasRequiredBalance } from "../tokenGate";
 import { MIN_TOKEN_BALANCE, TOKEN_MINT } from "../config";
 import { getTokenMetadata, formatTokenDisplay } from "../tokenMetadata";
@@ -45,6 +48,7 @@ const commands = {
   ...diagnostics,
   ...adminCommands,
   ...gameCommands,
+  ...gamingCommands,
   ...nyxCommands,
 };
 
@@ -76,6 +80,16 @@ const aliases = {
   vault: "globalvault",
   stats: "stakingstats",
   tvl: "stakingstats",
+  // NYX Gaming aliases
+  stories: "stories",
+  story: "story",
+  choice: "choice",
+  puzzle: "puzzle",
+  personality: "personality",
+  achievements: "achievements",
+  inventory: "inventory",
+  ach: "achievements",
+  inv: "inventory",
   // Development aliases
   lvl: "levelup",
   maxlevel: "levelup",
@@ -253,6 +267,17 @@ export async function executeCommand(input) {
     'health',
     'performance',
     'cache',
+    // Gaming commands - available to all users
+    'stories',
+    'story',
+    'scene',
+    'choice',
+    'puzzle',
+    'personality',
+    'achievements',
+    'inventory',
+    'balance_prompt',
+    'generate_puzzle',
     // Development-only commands
     'debug',
     'export',
@@ -318,29 +343,62 @@ export async function executeCommand(input) {
   userProgress.commandCount++;
 
   try {
-    // console.log('Executing command:', resolvedCommand, 'with args:', args);
-
+    // Execute the command
     const result = await commands[resolvedCommand](args);
 
-    // console.log('Command executed successfully:', resolvedCommand);
-
+    // Check for level up
     const leveledUp = checkLevelUp(resolvedCommand);
     if (leveledUp) {
       const newStatus = getUserStatus();
-      // console.log('User leveled up:', newStatus.level);
-
       const levelUpMsg = `\n\n━━━ 🎉 LEVEL UP! 🎉 ━━━\nAccess Level: [${newStatus.level}] ${newStatus.name}\nNew commands unlocked! Use 'help' to see them.`;
       result.content += levelUpMsg;
     }
 
-    return result;
-  } catch (error) {
-    // console.error('Command execution failed:', error);
+    // NYX Universal Processing - intercept ALL terminal outputs
+    // Skip universal processing for direct NYX commands to avoid duplication
+    const nyxDirectCommands = ['nyx', 'nyxchat'];
+    
+    if (nyxDirectCommands.includes(resolvedCommand)) {
+      return result; // Return original result without NYX processing
+    }
 
-    return {
+    const commandContext = {
+      command: resolvedCommand,
+      args: args,
+      history: userProgress.commandHistory || [],
+      user: getUserStatus(),
+      wallet: userProgress.walletState || {},
+      commandCount: userProgress.commandCount, // Include updated count
+      promptBalance: promptEconomy?.getBalance() || 0,
+      gameContext: {
+        inStory: false, // Will be updated by gaming commands
+        nyxPersonality: localStorage.getItem('nyx_personality') || 'classic'
+      },
+      success: true
+    };
+
+    // Let NYX process the message and add context
+    const nyxProcessedResult = await nyxUniversalProcessor(result, commandContext);
+    
+    return nyxProcessedResult;
+  } catch (error) {
+    // Create error context for NYX processing
+    const errorResult = {
       type: "error",
       content: `💥 Command execution failed: ${error.message}\nPlease try again or contact support.`,
     };
+
+    const errorContext = {
+      command: resolvedCommand,
+      args: args,
+      error: error.message,
+      user: getUserStatus(),
+      success: false
+    };
+
+    // Let NYX process errors too and provide solutions
+    const nyxProcessedError = await nyxUniversalProcessor(errorResult, errorContext);
+    return nyxProcessedError;
   }
 }
 
